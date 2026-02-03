@@ -1,0 +1,92 @@
+:root {
+    --color-bg-main:            #0F172A;
+    --color-bg-surface:         #1E293B;
+    --color-bg-surface-alt:     #334155;
+    --color-text-primary:       #cbd5e1;
+    --color-accent-secondary:   #F97316;
+    --color-accent-primary:     #EF4444;
+    --color-success:            #22C55E;
+    --color-warning:            #FACC15;
+    --color-danger:             #DC2626;
+    --color-info:               #38BDF8;
+    --color-white:              #FFFFFF;
+}
+
+.text-danger { color: var(--color-danger); }
+.bg-danger { background-color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.bg-warning { background-color: var(--color-warning); }
+.text-success { color: var(--color-success); }
+.bg-success { background-color: var(--color-success); }
+.text-info { color: var(--color-info); }
+.bg-info { background-color: var(--color-info); }
+.bg { background-color: var(--color-bg-main); }
+.bg-surface { background-color: var(--color-bg-surface); }
+
+html, body, #app {
+    background-color: var(--color-bg-main);
+    color: var(--color-text-primary);
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    border: 1px solid var(--color-bg-surface-alt);
+    color: var(--color-text-primary);
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: var(--color-bg-surface-alt);
+}
+
+.btn-primary {
+    background: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
+    color: var(--color-bg-main);
+}
+
+.btn-primary:hover {
+    background: color-mix(
+            in srgb,
+            var(--color-accent-primary) 70%,
+            white
+    );
+    border-color:  color-mix(
+            in srgb,
+            var(--color-accent-primary) 70%,
+            white
+    );
+}
+
+.hero {
+    min-height: calc(100vh - 70px);
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 3rem;
+    line-height: 1.1;
+    font-weight: 900;
+    margin: 0 0 16px;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    margin: 0 0 28px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
