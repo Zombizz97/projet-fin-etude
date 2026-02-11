@@ -7,7 +7,8 @@
                 Rejoignez la communauté, discutez sur le forum et trouvez des joueurs près de chez vous.
             </p>
             <div class="hero-actions">
-                <RouterLink to="/register" class="btn btn-primary">Créer un compte</RouterLink>
+                <RouterLink v-if="isAuthenticated" to="/profile" class="btn btn-primary">Profil</RouterLink>
+                <RouterLink v-else to="/register" class="btn btn-primary">Créer un compte</RouterLink>
                 <RouterLink to="/forum" class="btn">Accéder au forum</RouterLink>
             </div>
         </div>
@@ -15,8 +16,16 @@
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/auth'
+
 export default {
-    name: 'HomePage'
+    name: 'HomePage',
+    computed: {
+        isAuthenticated() {
+            const auth = useAuthStore()
+            return auth.isAuthenticated
+        }
+    }
 }
 </script>
 

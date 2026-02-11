@@ -14,29 +14,6 @@
     --color-info:               #38BDF8;
     --color-white:              #FFFFFF;
     --color-grey:               #9ca3af;
-    /* container */
-    --p-multiselect-background: var(--color-bg-main-500);
-    --p-multiselect-border-color: var(--color-bg-surface-alt);
-    --p-multiselect-color: var(--color-text-primary);
-    --p-multiselect-border-radius: 8px;
-
-    /* hover / focus */
-    --p-multiselect-hover-border-color: var(--color-accent-secondary);
-    --p-multiselect-focus-border-color: var(--color-accent-secondary);
-
-    /* panel */
-    --p-multiselect-panel-background: var(--color-bg-surface);
-    --p-multiselect-panel-border-color: var(--color-bg-surface-alt);
-
-    /* options */
-    --p-multiselect-option-color: var(--color-text-primary);
-    --p-multiselect-option-hover-background: var(--color-bg-surface-alt);
-    --p-multiselect-option-selected-background: var(--color-accent-secondary);
-    --p-multiselect-option-selected-color: var(--color-bg-main);
-
-    /* chips */
-    --p-multiselect-chip-background: var(--color-bg-surface-alt);
-    --p-multiselect-chip-color: var(--color-text-primary);
 }
 
 .text-danger { color: var(--color-danger); }
@@ -447,6 +424,60 @@ html, body, #app {
 }
 
 .p-multiselect-option:hover {
+    background: var(--color-bg-surface-alt) !important;
+}
+
+.p-select {
+    background: var(--color-bg-main) !important;
+    border: 1px solid var(--color-bg-surface-alt) !important;
+    border-radius: 6px !important;
+    color: var(--color-text-primary) !important;
+    min-height: 40px;
+}
+.p-select:not(.p-disabled):hover {
+    border-color: var(--color-text-primary) !important;
+}
+.p-select.p-focus {
+    border-color: var(--color-text-primary) !important;
+    box-shadow: 0 0 0 1px var(--color-text-primary) !important;
+}
+.p-select-label {
+    color: var(--color-text-primary) !important;
+}
+.p-select-label.p-placeholder {
+    color: var(--color-grey) !important;
+}
+.p-select-dropdown-icon,
+.p-select-clear-icon {
+    color: var(--color-text-primary) !important;
+}
+.p-select-clear-icon:hover {
+    color: var(--color-danger) !important;
+}
+.p-select-overlay {
+    background: var(--color-bg-surface) !important;
+    border: 1px solid var(--color-bg-surface-alt) !important;
+    border-radius: 10px !important;
+    color: var(--color-text-primary) !important;
+}
+.p-select-header {
+    background: var(--color-bg-surface) !important;
+    border-bottom: 1px solid var(--color-bg-surface-alt) !important;
+}
+.p-select-filter {
+    background: var(--color-bg-surface) !important;
+    border: 1px solid var(--color-bg-surface-alt) !important;
+    color: var(--color-text-primary) !important;
+}
+.p-select-list {
+    background: var(--color-bg-surface) !important;
+}
+.p-select-list-container { max-height: 260px; }
+.p-select-option {
+    color: var(--color-text-primary) !important;
+    border-radius: 6px;
+}
+.p-select-option:hover {
     background: var(--color-bg-surface-alt) !important;
 }
 

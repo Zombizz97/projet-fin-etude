@@ -43,6 +43,7 @@
                     </button>
                 </div>
                 <p v-if="errors.password" id="password-error" class="error">{{ errors.password }}</p>
+                <p v-if="apiError" id="password-error" class="error">{{ apiError }}</p>
             </div>
 
             <button type="submit" class="btn btn-primary">Se connecter</button>
@@ -52,28 +53,40 @@
 </template>
 
 <script>
-export default {
+    import {useAuthStore} from '../stores/auth'
+
+    export default {
     name: 'LoginPage',
     data() {
         return {
             pseudo: '',
             password: '',
             showPassword: false,
-            errors: { pseudo: '', password: '' }
+            errors: { pseudo: '', password: '' },
+            loading: false,
+            apiError: ''
         }
     },
     methods: {
         validate() {
             this.errors = { pseudo: '', password: '' }
-            const pseudoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
             if (!this.pseudo) this.errors.pseudo = 'Pseudo requis.'
-            else if (!pseudoRegex.test(this.pseudo)) this.errors.pseudo = 'Pseudo invalide.'
             if (!this.password) this.errors.password = 'Mot de passe requis.'
             return !this.errors.pseudo && !this.errors.password
         },
-        onSubmit() {
+        async onSubmit() {
             if (!this.validate()) return
-            console.log('Login:', { pseudo: this.pseudo, password: this.password })
+            this.loading = true
+            this.apiError = ''
+            try {
+                const auth = useAuthStore()
+                await auth.login({ username: this.pseudo, password: this.password })
+                this.$router.push('/')
+            } catch (e) {
+                this.apiError = e?.response?.data?.message || 'Échec de connexion'
+            } finally {
+                this.loading = false
+            }
         },
         togglePassword() {
             this.showPassword = !this.showPassword

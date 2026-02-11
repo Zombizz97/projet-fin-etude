@@ -3,7 +3,6 @@
         <header class="forum-header">
             <h1 class="title">Joueurs</h1>
             <div class="actions grid grid-cols-12 gap-3 items-center">
-                <!-- Recherche pseudo (4/12) -->
                 <div class="col-span-12 md:col-span-4">
                     <input
                         class="input"
@@ -12,7 +11,6 @@
                         placeholder="Rechercher par pseudo..." />
                 </div>
 
-                <!-- Niveau (2/12) -->
                 <div class="col-span-6 md:col-span-2">
                     <select v-model="filterLevel" class="select w-full select-fix">
                         <option value="">Tous</option>
@@ -22,7 +20,6 @@
                     </select>
                 </div>
 
-                <!-- Personnages (6/12) -->
                 <div class="col-span-6 md:col-span-6">
                     <MultiSelect
                         v-model="filterCharacters"

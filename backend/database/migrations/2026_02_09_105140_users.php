@@ -13,7 +13,6 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('username', 50)->unique();
-            $table->string('email', 255)->unique();
             $table->string('password', 255);
             $table->enum('skill_level', ['débutant','intermédiaire','confirmé','professionnel'])->nullable();
             $table->timestamps();

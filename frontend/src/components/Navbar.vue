@@ -14,8 +14,9 @@
 
         <div class="navbar-right">
             <template v-if="isAuthenticated && user">
-                <img :src="user.avatarUrl" alt="Avatar" class="avatar" />
-                <span class="pseudo">{{ user.pseudo }}</span>
+                <img :src="user.avatarUrl || '/favicon.svg'" alt="Avatar" class="avatar" />
+                <RouterLink to="/profile" class="pseudo">{{ user.username }}</RouterLink>
+                <button class="btn" @click="onLogout">Se déconnecter</button>
             </template>
             <template v-else>
                 <RouterLink to="/login" class="btn">Se connecter</RouterLink>
@@ -57,9 +58,11 @@
             <div class="mobile-actions">
                 <template v-if="isAuthenticated && user">
                     <div class="user-row">
-                        <img :src="user.avatarUrl" alt="Avatar" class="avatar" />
-                        <span class="pseudo">{{ user.pseudo }}</span>
+                        <img :src="user.avatarUrl || '/favicon.svg'" alt="Avatar" class="avatar" />
+                        <span class="pseudo">{{ user.username }}</span>
                     </div>
+                    <RouterLink to="/profile" class="btn w-full" @click="close">Mon profil</RouterLink>
+                    <button class="btn w-full" @click="onLogoutAndClose">Se déconnecter</button>
                 </template>
                 <template v-else>
                     <RouterLink to="/login" class="btn w-full" @click="close">Se connecter</RouterLink>
@@ -71,25 +74,42 @@
 </template>
 
 <script>
+import { useAuthStore } from '../stores/auth'
+
 export default {
     name: 'Navbar',
-    props: {
-        isAuthenticated: { type: Boolean, default: false },
-        user: { type: Object, default: null }
+    computed: {
+        isAuthenticated() {
+            const auth = useAuthStore()
+            return auth.isAuthenticated
+        },
+        user() {
+            const auth = useAuthStore()
+            return auth.user
+        }
     },
     data() {
-        return {
-            isOpen: false
-        }
+        return { isOpen: false }
     },
     methods: {
         open() { this.isOpen = true },
         close() { this.isOpen = false },
         toggle() { this.isOpen ? this.close() : this.open() },
-        onKeydown(e) { if (e.key === 'Escape') this.close() }
+        onKeydown(e) { if (e.key === 'Escape') this.close() },
+        onLogout() {
+            const auth = useAuthStore()
+            auth.logout()
+            this.$router.push('/')
+        },
+        onLogoutAndClose() {
+            this.onLogout()
+            this.close()
+        }
     },
-    mounted() {
+    async mounted() {
         window.addEventListener('keydown', this.onKeydown)
+        const auth = useAuthStore()
+        await auth.fetchMe()
     },
     beforeUnmount() {
         window.removeEventListener('keydown', this.onKeydown)
@@ -152,11 +172,6 @@ export default {
 
 .navlink:hover {
     background: var(--color-bg-surface-alt);
-    color: var(--color-white);
-}
-
-.active {
-    background: var(--color-bg-main);
     color: var(--color-white);
 }
 

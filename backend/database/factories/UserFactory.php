@@ -15,7 +15,6 @@ class UserFactory extends Factory
         $levels = ['débutant','intermédiaire','confirmé','professionnel'];
         return [
             'username' => fake()->unique()->userName(),
-            'email' => fake()->unique()->safeEmail(),
             'password' => 'password', // sera hashé via cast
             'skill_level' => fake()->randomElement($levels),
         ];
