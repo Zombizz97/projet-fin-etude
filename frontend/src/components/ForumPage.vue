@@ -38,11 +38,15 @@
                 <div class="card-header">
                     <h2 class="card-title">{{ t.title }}</h2>
                     <span class="badge" :class="t.isArchived ? 'badge-archived' : 'badge-active'">
-            {{ t.isArchived ? 'Archivé' : 'Actif' }}
-          </span>
+                        {{ t.isArchived ? 'Archivé' : 'Actif' }}
+                    </span>
                 </div>
                 <div class="card-body">
                     <div class="meta">
+                        <div class="meta-item">
+                            <span class="label">Forum</span>
+                            <span class="value">{{ t.forumName }}</span>
+                        </div>
                         <div class="meta-item">
                             <span class="label">Messages</span>
                             <span class="value">{{ t.messagesCount }}</span>
@@ -78,33 +82,33 @@
 
 <script>
 import PaginationControls from "@/components/Pagination.vue";
+import axios from 'axios'
 
 export default {
     name: 'ForumPage',
-    components: {PaginationControls},
+    components: { PaginationControls },
     data() {
         return {
-            allTopics: [
-                { id: 1, title: 'Bienvenue sur le forum', messagesCount: 42, isArchived: false, createdAt: '2024-10-01T10:00:00Z', lastMessageAt: '2024-12-12T12:00:00Z' },
-                { id: 2, title: 'Recherche joueurs à Paris', messagesCount: 15, isArchived: false, createdAt: '2024-11-05T08:30:00Z', lastMessageAt: '2025-01-10T09:20:00Z' },
-                { id: 3, title: 'Tournoi local \- résultats', messagesCount: 87, isArchived: true, createdAt: '2023-05-20T14:10:00Z', lastMessageAt: '2023-06-01T18:45:00Z' },
-                { id: 4, title: 'Astuces nouveaux joueurs', messagesCount: 23, isArchived: false, createdAt: '2024-12-20T16:00:00Z', lastMessageAt: '2025-01-15T11:11:00Z' },
-                { id: 5, title: 'Règles du forum', messagesCount: 3, isArchived: true, createdAt: '2022-01-01T00:00:00Z', lastMessageAt: '2022-02-01T00:00:00Z' },
-                { id: 6, title: 'Matchmaking hebdo', messagesCount: 51, isArchived: false, createdAt: '2024-07-12T12:00:00Z', lastMessageAt: '2025-01-03T13:00:00Z' },
-            ],
+            topics: [],
             q: '',
-            sortBy: 'lastMessageAt', // 'createdAt' | 'lastMessageAt' | 'messagesCount'
-            sortDir: 'desc', // 'asc' | 'desc'
-            stateFilter: 'all', // 'all' | 'active' | 'archived'
+            sortBy: 'lastMessageAt',
+            sortDir: 'desc',
+            stateFilter: 'all',
             page: 1,
             pageSize: 5,
         }
     },
+    mounted() {
+        this.getForums();
+    },
     computed: {
         filtered() {
             const query = this.q.trim().toLowerCase()
-            return this.allTopics.filter(t => {
-                const matchesText = query === '' || t.title.toLowerCase().includes(query)
+            return this.topics.filter(t => {
+                const matchesText =
+                    query === '' ||
+                    t.title.toLowerCase().includes(query) ||
+                    (t.forumName && t.forumName.toLowerCase().includes(query))
                 const matchesState =
                     this.stateFilter === 'all' ||
                     (this.stateFilter === 'active' && !t.isArchived) ||
@@ -142,6 +146,7 @@ export default {
             this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'
         },
         formatDate(iso) {
+            if (!iso) return '-'
             const d = new Date(iso)
             return d.toLocaleString('fr-FR', {
                 year: 'numeric',
@@ -149,6 +154,31 @@ export default {
                 day: 'numeric'
             })
         },
+        async getForums() {
+            try {
+                const res = await axios.get('http://localhost:8000/api/forums')
+                const categories = Array.isArray(res.data) ? res.data : []
+                const topics = []
+                for (const cat of categories) {
+                    const forumName = cat.name
+                    const catTopics = Array.isArray(cat.topics) ? cat.topics : []
+                    for (const t of catTopics) {
+                        topics.push({
+                            id: t.id,
+                            title: t.title,
+                            forumName,
+                            messagesCount: t.posts_count ?? 0,
+                            createdAt: t.created_at ?? null,
+                            lastMessageAt: t.updated_at ?? t.created_at ?? null,
+                            isArchived: !!t.is_archived,
+                        })
+                    }
+                }
+                this.topics = topics
+            } catch (e) {
+                console.error('Erreur lors du chargement des forums', e)
+            }
+        }
     },
 }
 </script>

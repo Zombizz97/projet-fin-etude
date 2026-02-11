@@ -2,29 +2,31 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Les attributs autorisés en assignation massive.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
+        'skill_level',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Les attributs masqués en sérialisation.
      *
      * @var list<string>
      */
@@ -34,7 +36,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Casts des attributs.
      *
      * @return array<string, string>
      */
@@ -44,5 +46,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /** Relations **/
+    public function characters(): HasMany
+    {
+        return $this->hasMany(UserCharacter::class);
+    }
+
+    public function topics(): HasMany
+    {
+        return $this->hasMany(ForumTopic::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(ForumPost::class);
     }
 }

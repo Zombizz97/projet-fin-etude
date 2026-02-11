@@ -2,35 +2,46 @@
     <section class="forum">
         <header class="forum-header">
             <h1 class="title">Joueurs</h1>
-            <div class="actions">
-                <div class="search">
+            <div class="actions grid grid-cols-12 gap-3 items-center">
+                <!-- Recherche pseudo (4/12) -->
+                <div class="col-span-12 md:col-span-4">
                     <input
                         class="input"
                         type="text"
                         v-model="search"
-                        placeholder="Rechercher par pseudo..."
-                    />
+                        placeholder="Rechercher par pseudo..." />
                 </div>
 
-                <div class="filters">
-                    <select v-model="filterLevel" class="select">
-                        <option value="">Tous les niveaux</option>
-                        <option v-for="lvl in levels" :key="lvl" :value="lvl">{{ lvl }}</option>
+                <!-- Niveau (2/12) -->
+                <div class="col-span-6 md:col-span-2">
+                    <select v-model="filterLevel" class="select w-full select-fix">
+                        <option value="">Tous</option>
+                        <option v-for="lvl in levels" :key="lvl" :value="lvl">
+                            {{ lvl }}
+                        </option>
                     </select>
+                </div>
 
-                    <multiselect class="select"
-                                 id="single-select-search"
-                                 v-model="filterCharacter"
-                                 :options="options"
-                                 :multiple="true"
-                                 :close-on-select="false"
-                                 :clear-on-select="false"
-                                 :preserve-search="true"
-                                 placeholder="Filtrer par personnage..."
-                                 label="name"
-                                 track-by="name">
-                    </multiselect>
-
+                <!-- Personnages (6/12) -->
+                <div class="col-span-6 md:col-span-6">
+                    <MultiSelect
+                        v-model="filterCharacters"
+                        :options="characterOptions"
+                        optionLabel="name"
+                        filter
+                        placeholder="Filtrer par personnage..."
+                        display="chip"
+                        class="w-full md:w-80" >
+                        <template #option="slotProps">
+                            <div class="flex items-center gap-2">
+                                <img
+                                    :src="slotProps.option.icon || ''"
+                                    class="w-5 h-5 object-contain"
+                                    alt="" />
+                                <span>{{ slotProps.option.name }}</span>
+                            </div>
+                        </template>
+                    </MultiSelect>
                 </div>
             </div>
         </header>
@@ -38,11 +49,16 @@
         <div class="cards">
             <div v-for="player in paginatedPlayers" :key="player.id" class="card">
                 <div class="card-header">
-                    <span class="pseudo">{{ player.pseudo }}</span>
-                    <span class="level">{{ player.level }}</span>
+                    <span class="pseudo">{{ player.username }}</span>
+                    <span class="level">{{ player.skill_level || 'N/A' }}</span>
                 </div>
                 <div class="card-body">
-                    <span class="character">Personnage: {{ player.character }}</span>
+                    <div class="characters">
+                        <span v-for="ci in player.characterInfos" :key="ci.name" class="character-chip">
+                            <span class="name">{{ ci.name }}</span>
+                            <img v-if="ci.icon" :src="ci.icon" alt="icon" class="icon right" />
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -61,56 +77,57 @@
 </template>
 
 <script>
-import Pagination from './Pagination.vue'
-import Multiselect from "vue-multiselect";
+    import Pagination from './Pagination.vue'
+    import axios from 'axios'
+    import MultiSelect from 'primevue/multiselect'
 
-export default {
+    export default {
     name: 'PlayersPage',
-    components: { Multiselect, Pagination },
+    components: { MultiSelect, Pagination },
     data() {
         return {
             search: '',
             filterLevel: '',
-            filterCharacter: [],
-            charOpen: false,
+            filterCharacters: [],
             currentPage: 1,
             pageSize: 10,
             pageSizes: [5, 10, 20, 50],
-            players: [
-                { id: 1, pseudo: 'Arthas', level: 'Débutant', character: 'Guerrier' },
-                { id: 2, pseudo: 'Sylvanas', level: 'Débutant', character: 'Archer' },
-                { id: 3, pseudo: 'Jaina', level: 'Intermédiaire', character: 'Mage' },
-                { id: 4, pseudo: 'Thrall', level: 'Intermédiaire', character: 'Chaman' },
-                { id: 5, pseudo: 'Valeera', level: 'Intermédiaire', character: 'Rogue' },
-                { id: 6, pseudo: 'Anduin', level: 'Avancé', character: 'Prêtre' },
-                { id: 7, pseudo: 'Illidan', level: 'Avancé', character: 'Démoniste' },
-                { id: 8, pseudo: 'Rexxar', level: 'Avancé', character: 'Chasseur' },
-                { id: 9, pseudo: 'Tyrande', level: 'Avancé', character: 'Druide' },
-                { id: 10, pseudo: 'Uther', level: 'Expert', character: 'Paladin' },
-                { id: 11, pseudo: 'Maiev', level: 'Expert', character: 'Rogue' },
-                { id: 12, pseudo: 'Kael\'thas', level: 'Expert', character: 'Mage' },
-            ],
+            players: [],
             levels: [
-                'Débutant', 'Intermédiaire', 'Confirmé', 'Professionnel'
+                'débutant', 'intermédiaire', 'confirmé', 'professionnel'
             ],
-            options: [
-                {name: 'Guerrier'},
-                {name: 'Archer'},
-                {name: 'Mage'},
-                {name: 'Chaman'},
-                {name: 'Rogue'}
-            ]
+            characterOptions: [],
         };
     },
     computed: {
+        normalizedPlayers() {
+            // Assure une structure uniforme pour l’affichage et les filtres
+            return this.players.map(u => {
+                const characterInfos = Array.isArray(u.characters)
+                    ? u.characters.map(uc => ({
+                        name: uc.character?.name,
+                        icon: uc.character?.icon_path || null,
+                    })).filter(ci => !!ci.name)
+                    : []
+                return {
+                    id: u.id,
+                    username: u.username || u.name || '',
+                    skill_level: u.skill_level || '',
+                    characterInfos,
+                }
+            })
+        },
         filteredPlayers() {
             const searchLower = this.search.trim().toLowerCase();
-            // const characterFilter = this.filterCharacter ? this.filterCharacter.name.toLowerCase() : '';
-            return this.players.filter(p => {
-                const matchSearch = !searchLower || p.pseudo.toLowerCase().includes(searchLower);
-                const matchLevel = !this.filterLevel || p.level === this.filterLevel;
-                // const matchCharacter = !characterFilter || p.character.toLowerCase().includes(characterFilter);
-                return matchSearch && matchLevel;
+            const selectedChars = this.filterCharacters.map(c => c.name.toLowerCase())
+            return this.normalizedPlayers.filter(p => {
+                const names = p.characterInfos.map(ci => ci.name)
+                const matchSearch = !searchLower ||
+                    p.username.toLowerCase().includes(searchLower) ||
+                    names.some(n => n.toLowerCase().includes(searchLower))
+                const matchLevel = !this.filterLevel || p.skill_level === this.filterLevel
+                const matchCharacters = selectedChars.length === 0 || selectedChars.every(sel => names.map(n => n.toLowerCase()).includes(sel))
+                return matchSearch && matchLevel && matchCharacters
             });
         },
         totalPages() {
@@ -125,7 +142,7 @@ export default {
     watch: {
         search() { this.currentPage = 1; },
         filterLevel() { this.currentPage = 1; },
-        filterCharacter() { this.currentPage = 1; },
+        filterCharacters() { this.currentPage = 1; },
         pageSize() { this.currentPage = 1; },
     },
     methods: {
@@ -134,22 +151,34 @@ export default {
             if (page > this.totalPages) page = this.totalPages;
             this.currentPage = page;
         },
-        handleOutsideClick(e) {
-            const root = this.$refs.charSelect;
-            if (root && !root.contains(e.target)) {
-                this.charOpen = false;
+        async loadPlayers() {
+            try {
+                const res = await axios.get('http://localhost:8000/api/players')
+                this.players = Array.isArray(res.data) ? res.data : []
+            } catch (e) {
+                console.error('Erreur de chargement des joueurs', e)
+            }
+        },
+        async loadCharacters() {
+            try {
+                const res = await axios.get('http://localhost:8000/api/characters')
+                const chars = Array.isArray(res.data) ? res.data : []
+                this.characterOptions = chars.map(c => ({ name: c.name, icon: c.icon_path || null }))
+            } catch (e) {
+                console.error('Erreur de chargement des personnages', e)
             }
         }
     },
-    mounted() {
-        document.addEventListener('click', this.handleOutsideClick);
-    },
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleOutsideClick);
+    async mounted() {
+        await Promise.all([
+            this.loadPlayers(),
+            this.loadCharacters(),
+        ])
     },
 };
 </script>
 
 <style scoped>
+.icon { width: 20px; height: 20px; object-fit: contain; }
+.icon.right { margin-left: 6px; }
 </style>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>

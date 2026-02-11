@@ -14,6 +14,29 @@
     --color-info:               #38BDF8;
     --color-white:              #FFFFFF;
     --color-grey:               #9ca3af;
+    /* container */
+    --p-multiselect-background: var(--color-bg-main-500);
+    --p-multiselect-border-color: var(--color-bg-surface-alt);
+    --p-multiselect-color: var(--color-text-primary);
+    --p-multiselect-border-radius: 8px;
+
+    /* hover / focus */
+    --p-multiselect-hover-border-color: var(--color-accent-secondary);
+    --p-multiselect-focus-border-color: var(--color-accent-secondary);
+
+    /* panel */
+    --p-multiselect-panel-background: var(--color-bg-surface);
+    --p-multiselect-panel-border-color: var(--color-bg-surface-alt);
+
+    /* options */
+    --p-multiselect-option-color: var(--color-text-primary);
+    --p-multiselect-option-hover-background: var(--color-bg-surface-alt);
+    --p-multiselect-option-selected-background: var(--color-accent-secondary);
+    --p-multiselect-option-selected-color: var(--color-bg-main);
+
+    /* chips */
+    --p-multiselect-chip-background: var(--color-bg-surface-alt);
+    --p-multiselect-chip-color: var(--color-text-primary);
 }
 
 .text-danger { color: var(--color-danger); }
@@ -115,8 +138,12 @@ html, body, #app {
     max-width: 1000px;
     margin: 0 auto;
     padding: 24px;
-    position: relative;
-    z-index: 1;
+}
+
+.topic {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
 }
 
 .forum-header {
@@ -126,6 +153,13 @@ html, body, #app {
     margin-bottom: 16px;
 }
 
+.topic-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 .title {
     font-size: 28px;
     margin: 0;
@@ -133,7 +167,6 @@ html, body, #app {
 
 .actions {
     display: flex;
-    flex-wrap: wrap;
     gap: 8px;
     align-items: center;
     justify-content: space-between;
@@ -164,6 +197,12 @@ html, body, #app {
     border: 1px solid var(--color-bg-surface-alt);
     background: var(--color-bg-main-500);
     color: var(--color-text-primary);
+}
+
+.select {
+    appearance: none;
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
 }
 
 .btn:disabled {
@@ -312,6 +351,105 @@ html, body, #app {
     color: var(--color-danger);
     font-size: 12px;
 }
+
+.characters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.character-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-bg-surface);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.p-multiselect {
+    background: var(--color-bg-main-500) !important;
+    border: 1px solid var(--color-bg-surface-alt) !important;
+    border-radius: 8px !important;
+    color: var(--color-text-primary) !important;
+    min-height: 40px;
+}
+
+.p-multiselect:not(.p-disabled):hover {
+    border-color: var(--color-text-primary) !important;
+}
+
+.p-multiselect.p-focus {
+    border-color: var(--color-text-primary) !important;
+    box-shadow: 0 0 0 1px var(--color-text-primary) !important;
+}
+
+.p-multiselect-label {
+    color: var(--color-text-primary) !important;
+}
+
+.p-multiselect-label.p-placeholder {
+    color: var(--color-grey) !important;
+}
+
+.p-multiselect-dropdown-icon {
+    color: var(--color-text-primary) !important;
+}
+
+.p-multiselect-clear-icon {
+    color: var(--color-grey) !important;
+}
+
+.p-multiselect-clear-icon:hover {
+    color: var(--color-danger) !important;
+}
+
+.p-multiselect-chip {
+    background: var(--color-bg-surface-alt) !important;
+    color: var(--color-text-primary) !important;
+    border-radius: 6px !important;
+    padding: 2px 8px;
+}
+
+.p-multiselect-chip-icon {
+    color: var(--color-grey) !important;
+}
+
+.p-multiselect-overlay {
+    background: var(--color-bg-surface) !important;
+    border: 1px solid var(--color-bg-surface-alt) !important;
+    border-radius: 10px !important;
+    color: var(--color-text-primary) !important;
+}
+
+.p-multiselect-header {
+    background: var(--color-bg-surface) !important;
+    border-bottom: 1px solid var(--color-bg-surface-alt) !important;
+}
+
+.p-multiselect-filter {
+    background: var(--color-bg-surface) !important;
+    border: 1px solid var(--color-bg-surface-alt) !important;
+    color: var(--color-text-primary) !important;
+}
+
+.p-multiselect-list {
+    background: var(--color-bg-surface) !important;
+}
+
+.p-multiselect-list-container {
+    max-height: 260px;
+}
+
+.p-multiselect-option {
+    color: var(--color-text-primary) !important;
+    border-radius: 6px;
+}
+
+.p-multiselect-option:hover {
+    background: var(--color-bg-surface-alt) !important;
+}
+
 
 @media (max-width: 640px) {
     .meta {
