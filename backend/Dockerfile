@@ -2,7 +2,7 @@ FROM composer:latest AS composer
 
 WORKDIR /app
 
-COPY . .
+COPY composer.json composer.lock ./
 
 RUN composer install --no-dev --no-interaction --no-scripts
 
@@ -12,10 +12,13 @@ RUN docker-php-ext-install pdo_mysql && a2enmod rewrite
 
 COPY --from=composer /app/vendor /var/www/html/vendor
 
-COPY --from=composer /app /var/www/html
+COPY . /var/www/html
 
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/storage && \
-    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/storage && \
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/storage
+RUN mkdir -p public/storage && chown -R www-data:www-data storage bootstrap/cache public/storage
+
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 80
