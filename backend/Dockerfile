@@ -1,16 +1,18 @@
+FROM composer:latest AS composer
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --no-interaction
+
 FROM php:8.2-apache
 
-RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install pdo_mysql && a2enmod rewrite
 
-RUN a2enmod rewrite
+COPY --from=composer /app/vendor /var/www/html/vendor
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-WORKDIR /var/www/html
-
-COPY . .
-
-RUN composer install --no-dev --no-interaction --no-scripts
+COPY . /var/www/html
 
 RUN mkdir -p public/storage && chown -R www-data:www-data storage bootstrap/cache public/storage
 
