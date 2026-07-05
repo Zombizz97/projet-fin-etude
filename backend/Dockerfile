@@ -1,14 +1,24 @@
+FROM composer:latest AS composer
+
 FROM php:8.2-apache
 
-RUN docker-php-ext-install pdo_mysql
+RUN apt-get update && apt-get install -y \
+    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_mysql bcmath gd zip
 
 RUN a2enmod rewrite
 
-COPY . /var/www/html
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+WORKDIR /var/www/html
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --optimize-autoloader --no-dev
+COPY composer.json composer.lock ./
 
-RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
+RUN composer install --optimize-autoloader --no-dev --no-interaction
+
+COPY . .
+
+RUN chown -R www-data:www-data storage bootstrap/cache public/storage
+
+EXPOSE 80
