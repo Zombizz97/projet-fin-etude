@@ -3,8 +3,10 @@ FROM composer:latest AS composer
 WORKDIR /app
 
 COPY composer.json composer.lock ./
+RUN chown -R www-data:www-data . && \
+    composer install --no-dev --no-interaction
 
-RUN composer install --no-dev --no-interaction
+RUN composer install --no-dev --no-interaction --prefer-dist
 
 FROM php:8.2-apache
 
