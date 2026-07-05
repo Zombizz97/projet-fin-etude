@@ -10,18 +10,17 @@ FROM php:8.4-apache
 
 RUN docker-php-ext-install pdo_mysql && a2enmod rewrite
 
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
-    sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/conf-available/docker-php.conf
-
 COPY --from=composer /app/vendor /var/www/html/vendor
 
 COPY . /var/www/html
 
-RUN mkdir -p public/storage && chown -R www-data:www-data storage bootstrap/cache public/storage
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+RUN if [ ! -f /var/www/html/storage/database/migrated ]; then \
+        php artisan migrate --force && \
+        touch /var/www/html/storage/database/migrated; \
+    fi
 
 EXPOSE 80
