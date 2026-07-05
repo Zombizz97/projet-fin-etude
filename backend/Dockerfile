@@ -3,10 +3,10 @@ FROM composer:latest AS composer
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev unzip libxml2-dev libonig-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev unzip libicu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
-    pdo_mysql bcmath gd zip mbstring exif intl xml ctype fileinfo soap sockets
+    pdo_mysql bcmath gd zip mbstring intl opcache
 
 RUN a2enmod rewrite
 
