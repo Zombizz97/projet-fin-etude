@@ -156,7 +156,7 @@ export default {
         },
         async getForums() {
             try {
-                const res = await api.get('/')
+                const res = await api.get('/forums')
                 const categories = Array.isArray(res.data) ? res.data : []
                 const topics = []
                 for (const cat of categories) {
