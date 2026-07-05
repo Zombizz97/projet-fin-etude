@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import api from '@/services/api'
 import PaginationControls from '@/components/Pagination.vue'
 
 export default {
@@ -75,7 +75,7 @@ export default {
             const id = this.$route.params.id
             if (!id) return
             try {
-                const res = await axios.get(`http://localhost:8000/api/forums/${id}`)
+                const res = await api.get(`/forums/${id}`)
                 const t = res.data || {}
                 this.topic = t
                 if (typeof t.posts_count === 'number') this.total = t.posts_count
@@ -89,7 +89,7 @@ export default {
             this.loading = true
             this.error = null
             try {
-                const res = await axios.get(`http://localhost:8000/api/forums/${id}/posts`, {
+                const res = await api.get(`/forums/${id}/posts`, {
                     params: { page: this.page, per_page: this.pageSize }
                 })
                 const payload = res.data || {}

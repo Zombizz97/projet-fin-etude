@@ -41,8 +41,8 @@ describe('PlayersPage', () => {
   it('fetches players and characters on mount', async () => {
     mount(PlayersPage, { global: { plugins: [router] } })
     await flushPromises()
-    expect(api.get).toHaveBeenCalledWith('http://localhost:8000/api/players')
-    expect(api.get).toHaveBeenCalledWith('http://localhost:8000/api/characters')
+    expect(api.get).toHaveBeenCalledWith('/players')
+    expect(api.get).toHaveBeenCalledWith('/characters')
   })
 
   it('renders player cards', async () => {

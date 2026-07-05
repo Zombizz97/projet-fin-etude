@@ -82,7 +82,7 @@
 
 <script>
 import PaginationControls from "@/components/Pagination.vue";
-import axios from 'axios'
+import api from '@/services/api'
 
 export default {
     name: 'ForumPage',
@@ -156,7 +156,7 @@ export default {
         },
         async getForums() {
             try {
-                const res = await axios.get('http://localhost:8000/api/forums')
+                const res = await api.get('/')
                 const categories = Array.isArray(res.data) ? res.data : []
                 const topics = []
                 for (const cat of categories) {

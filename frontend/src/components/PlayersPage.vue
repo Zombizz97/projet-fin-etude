@@ -75,7 +75,7 @@
 
 <script>
     import Pagination from './Pagination.vue'
-    import axios from 'axios'
+    import api from '@/services/api'
     import MultiSelect from 'primevue/multiselect'
 
     export default {
@@ -150,7 +150,7 @@
         },
         async loadPlayers() {
             try {
-                const res = await axios.get('http://localhost:8000/api/players')
+                const res = await api.get('/players')
                 this.players = Array.isArray(res.data) ? res.data : []
             } catch (e) {
                 console.error('Erreur de chargement des joueurs', e)
@@ -158,7 +158,7 @@
         },
         async loadCharacters() {
             try {
-                const res = await axios.get('http://localhost:8000/api/characters')
+                const res = await api.get('/characters')
                 const chars = Array.isArray(res.data) ? res.data : []
                 this.characterOptions = chars.map(c => ({ name: c.name, icon: c.icon_path || null }))
             } catch (e) {

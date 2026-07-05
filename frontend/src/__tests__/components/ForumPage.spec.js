@@ -40,7 +40,7 @@ describe('ForumPage', () => {
   it('fetches forums on mount', async () => {
     mount(ForumPage, { global: { plugins: [router] } })
     await flushPromises()
-    expect(api.get).toHaveBeenCalledWith('http://localhost:8000/api/forums')
+    expect(api.get).toHaveBeenCalledWith('/')
   })
 
   it('renders topic cards', async () => {
