@@ -48,7 +48,7 @@ class AuthController extends Controller
             'iat' => Carbon::now()->timestamp, // émis à
             'exp' => Carbon::now()->addDays(7)->timestamp, // expiration
         ];
-        $secret = Config::get('services.jwt.secret') ?? env('JWT_SECRET');
+        $secret = Config::get('services.jwt.secret') ?? env('JWT_SECRET') ?? env('APP_KEY');
         if (!$secret) {
             return response()->json(['message' => 'JWT_SECRET non défini sur le serveur'], 500);
         }
@@ -77,7 +77,7 @@ class AuthController extends Controller
             'iat' => Carbon::now()->timestamp,
             'exp' => Carbon::now()->addDays(7)->timestamp,
         ];
-        $secret = Config::get('services.jwt.secret') ?? env('JWT_SECRET');
+        $secret = Config::get('services.jwt.secret') ?? env('JWT_SECRET') ?? env('APP_KEY');
         if (!$secret) {
             return response()->json(['message' => 'JWT_SECRET non défini sur le serveur'], 500);
         }
