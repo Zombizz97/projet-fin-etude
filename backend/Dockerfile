@@ -6,7 +6,7 @@ COPY composer.json composer.lock ./
 
 RUN composer install --no-dev --no-interaction --no-scripts
 
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 RUN docker-php-ext-install pdo_mysql && a2enmod rewrite
 
