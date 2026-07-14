@@ -30,7 +30,7 @@ describe('ProfilePage', () => {
   })
 
   it('pre-fills form from store', async () => {
-    let store = useAuthStore()
+    const store = useAuthStore()
     store.user = { id: 1, username: 'testuser', skill_level: 'intermédiaire' }
     store.setToken('jwt')
     api.get.mockResolvedValue({ data: { user: { id: 1, username: 'testuser', skill_level: 'intermédiaire' } } })
@@ -43,7 +43,7 @@ describe('ProfilePage', () => {
   })
 
   it('submits form and updates user', async () => {
-    let store = useAuthStore()
+    const store = useAuthStore()
     store.user = { id: 1, username: 'oldname', skill_level: null }
     store.setToken('jwt')
     api.get.mockResolvedValue({ data: { user: { id: 1, username: 'oldname', skill_level: null } } })
@@ -69,7 +69,7 @@ describe('ProfilePage', () => {
   })
 
   it('shows error on failed update', async () => {
-    let store = useAuthStore()
+    const store = useAuthStore()
     store.user = { id: 1, username: 'test', skill_level: null }
     store.setToken('jwt')
     api.get.mockResolvedValue({ data: { user: { id: 1, username: 'test', skill_level: null } } })
