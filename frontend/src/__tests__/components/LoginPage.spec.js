@@ -4,7 +4,6 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import LoginPage from '@/components/LoginPage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import api from '@/services/api'
 
 const router = createRouter({
   history: createWebHistory(),

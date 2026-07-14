@@ -1,0 +1,38 @@
+name: CI Check
+
+on:
+  pull_request:
+
+jobs:
+  frontend:
+    name: Frontend — Build + Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+
+  backend:
+    name: Backend — Build + Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: pdo_mysql
+          tools: composer:v2
+      - run: composer install --no-interaction
+      - run: vendor/bin/pint --test

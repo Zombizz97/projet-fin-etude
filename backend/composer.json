@@ -58,6 +58,9 @@
             "@php artisan config:clear --ansi",
             "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-clover coverage.xml --coverage-text"
         ],
+        "lint": [
+            "@php vendor/bin/pint --test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
