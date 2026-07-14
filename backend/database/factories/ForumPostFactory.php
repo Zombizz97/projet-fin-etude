@@ -15,7 +15,7 @@ class ForumPostFactory extends Factory
         return [
             'topic_id' => null,
             'user_id' => null,
-            'content' => fake()->paragraphs(random_int(1,2), true),
+            'content' => fake()->paragraphs(random_int(1, 2), true),
         ];
     }
 }

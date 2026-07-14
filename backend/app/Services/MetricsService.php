@@ -2,15 +2,14 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
 use Prometheus\CollectorRegistry;
-use Prometheus\Storage\InMemory;
-use Prometheus\Storage\Redis;
-use Prometheus\RenderTextFormat;
 use Prometheus\Counter;
 use Prometheus\Gauge;
 use Prometheus\Histogram;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Prometheus\RenderTextFormat;
+use Prometheus\Storage\InMemory;
+use Prometheus\Storage\Redis;
 
 class MetricsService
 {
@@ -28,8 +27,9 @@ class MetricsService
     public static function getInstance(): self
     {
         if (self::$instance === null) {
-            self::$instance = new self();
+            self::$instance = new self;
         }
+
         return self::$instance;
     }
 
@@ -40,7 +40,7 @@ class MetricsService
         if ($driver === 'redis') {
             try {
                 $redisConfig = config('prometheus.redis', []);
-                $redis = new \Redis();
+                $redis = new \Redis;
                 $redis->connect(
                     $redisConfig['host'] ?? '127.0.0.1',
                     $redisConfig['port'] ?? 6379,
@@ -49,19 +49,20 @@ class MetricsService
                     $redisConfig['read_timeout'] ?? 0.1,
                     ['persistent' => $redisConfig['persistent_connections'] ?? false]
                 );
-                if (!empty($redisConfig['password'])) {
+                if (! empty($redisConfig['password'])) {
                     $redis->auth($redisConfig['password']);
                 }
                 $adapter = new Redis($redis);
                 $adapter->setPrefix($redisConfig['prefix'] ?? 'PROMETHEUS_');
                 $this->redisAvailable = true;
+
                 return new CollectorRegistry($adapter);
             } catch (\Throwable $e) {
-                Log::warning('Prometheus Redis connection failed, falling back to InMemory: ' . $e->getMessage());
+                Log::warning('Prometheus Redis connection failed, falling back to InMemory: '.$e->getMessage());
             }
         }
 
-        return new CollectorRegistry(new InMemory());
+        return new CollectorRegistry(new InMemory);
     }
 
     public function getRegistry(): CollectorRegistry
@@ -71,19 +72,22 @@ class MetricsService
 
     public function render(): string
     {
-        $renderer = new RenderTextFormat();
+        $renderer = new RenderTextFormat;
+
         return $renderer->render($this->registry->getMetricFamilySamples());
     }
 
     public function createCounter(string $name, string $help, array $labels = []): Counter
     {
         $namespace = config('prometheus.namespace', 'smashconnect');
+
         return $this->registry->registerCounter($namespace, $name, $help, $labels);
     }
 
     public function createGauge(string $name, string $help, array $labels = []): Gauge
     {
         $namespace = config('prometheus.namespace', 'smashconnect');
+
         return $this->registry->registerGauge($namespace, $name, $help, $labels);
     }
 
@@ -93,6 +97,7 @@ class MetricsService
         if ($buckets === null) {
             $buckets = config('prometheus.http_buckets');
         }
+
         return $this->registry->registerHistogram($namespace, $name, $help, $labels, $buckets);
     }
 

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Character;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
@@ -167,6 +167,7 @@ class AuthControllerTest extends TestCase
             'iat' => now()->timestamp,
             'exp' => now()->addDays(7)->timestamp,
         ];
+
         return \Firebase\JWT\JWT::encode($payload, Config::get('services.jwt.secret'), 'HS256');
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Character;
+use App\Models\User;
 use App\Models\UserCharacter;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\JsonResponse;
-use Firebase\JWT\JWT;
-use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -18,10 +18,10 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'username' => ['required','string','max:50','unique:users,username'],
-            'password' => ['required','string','min:6'],
-            'skill_level' => ['nullable','in:débutant,intermédiaire,confirmé,professionnel'],
-            'character_id' => ['nullable','integer','exists:characters,id'],
+            'username' => ['required', 'string', 'max:50', 'unique:users,username'],
+            'password' => ['required', 'string', 'min:6'],
+            'skill_level' => ['nullable', 'in:débutant,intermédiaire,confirmé,professionnel'],
+            'character_id' => ['nullable', 'integer', 'exists:characters,id'],
         ]);
 
         $user = User::create([
@@ -31,7 +31,7 @@ class AuthController extends Controller
         ]);
 
         // Associer le personnage principal si fourni
-        if (!empty($validated['character_id'])) {
+        if (! empty($validated['character_id'])) {
             $character = Character::find($validated['character_id']);
             if ($character) {
                 UserCharacter::updateOrCreate(
@@ -49,7 +49,7 @@ class AuthController extends Controller
             'exp' => Carbon::now()->addDays(7)->timestamp, // expiration
         ];
         $secret = Config::get('services.jwt.secret') ?? env('JWT_SECRET') ?? env('APP_KEY');
-        if (!$secret) {
+        if (! $secret) {
             return response()->json(['message' => 'JWT_SECRET non défini sur le serveur'], 500);
         }
         $token = JWT::encode($payload, $secret, 'HS256');
@@ -61,12 +61,12 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'username' => ['required','string'],
-            'password' => ['required','string'],
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
 
         $user = User::where('username', $validated['username'])->first();
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return response()->json(['message' => 'Identifiants invalides'], 401);
         }
 
@@ -78,7 +78,7 @@ class AuthController extends Controller
             'exp' => Carbon::now()->addDays(7)->timestamp,
         ];
         $secret = Config::get('services.jwt.secret') ?? env('JWT_SECRET') ?? env('APP_KEY');
-        if (!$secret) {
+        if (! $secret) {
             return response()->json(['message' => 'JWT_SECRET non défini sur le serveur'], 500);
         }
         $token = JWT::encode($payload, $secret, 'HS256');
@@ -97,14 +97,14 @@ class AuthController extends Controller
     {
         /** @var User|null $user */
         $user = $request->attributes->get('auth_user');
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         $validated = $request->validate([
-            'username' => ['sometimes','string','max:50','unique:users,username,'.$user->id],
-            'skill_level' => ['nullable','in:débutant,intermédiaire,confirmé,professionnel'],
-            'password' => ['nullable','string','min:6'],
+            'username' => ['sometimes', 'string', 'max:50', 'unique:users,username,'.$user->id],
+            'skill_level' => ['nullable', 'in:débutant,intermédiaire,confirmé,professionnel'],
+            'password' => ['nullable', 'string', 'min:6'],
         ]);
 
         if (array_key_exists('username', $validated)) {
@@ -113,7 +113,7 @@ class AuthController extends Controller
         if (array_key_exists('skill_level', $validated)) {
             $user->skill_level = $validated['skill_level'];
         }
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
         $user->save();

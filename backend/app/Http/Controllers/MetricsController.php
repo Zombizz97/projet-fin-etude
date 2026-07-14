@@ -40,12 +40,12 @@ class MetricsController extends Controller
                 $dbSize = 0;
                 $driver = DB::connection()->getDriverName();
                 if ($driver === 'sqlite') {
-                    $result = DB::select("SELECT page_count * page_size / 1024 as size_kb FROM pragma_page_count(), pragma_page_size()");
-                    $dbSize = (float)($result[0]->size_kb ?? 0);
+                    $result = DB::select('SELECT page_count * page_size / 1024 as size_kb FROM pragma_page_count(), pragma_page_size()');
+                    $dbSize = (float) ($result[0]->size_kb ?? 0);
                 } elseif ($driver === 'mysql') {
                     $dbName = DB::getDatabaseName();
-                    $result = DB::select("SELECT ROUND(SUM(data_length + index_length) / 1024, 0) as size_kb FROM information_schema.tables WHERE table_schema = ?", [$dbName]);
-                    $dbSize = (float)($result[0]->size_kb ?? 0);
+                    $result = DB::select('SELECT ROUND(SUM(data_length + index_length) / 1024, 0) as size_kb FROM information_schema.tables WHERE table_schema = ?', [$dbName]);
+                    $dbSize = (float) ($result[0]->size_kb ?? 0);
                 }
                 $gaugeDb = $this->metrics->createGauge('database_size_kb', 'Database file size in KB');
                 $gaugeDb->set($dbSize);
@@ -82,16 +82,16 @@ class MetricsController extends Controller
             try {
                 $value = $query();
                 $gauge = $this->metrics->createGauge($name, $help);
-                $gauge->set((float)$value);
+                $gauge->set((float) $value);
             } catch (\Throwable $e) {
                 report($e);
             }
         };
 
-        $tryAndGauge('forum_topics_total', 'Total forum topics', fn() => \App\Models\ForumTopic::count());
-        $tryAndGauge('forum_posts_total', 'Total forum posts', fn() => \App\Models\ForumPost::count());
-        $tryAndGauge('forum_categories_total', 'Total forum categories', fn() => \App\Models\ForumCategory::count());
-        $tryAndGauge('forum_posts_last_hour', 'Forum posts created in the last hour', fn() => \App\Models\ForumPost::where('created_at', '>=', now()->subHour())->count());
-        $tryAndGauge('forum_topics_last_hour', 'Forum topics created in the last hour', fn() => \App\Models\ForumTopic::where('created_at', '>=', now()->subHour())->count());
+        $tryAndGauge('forum_topics_total', 'Total forum topics', fn () => \App\Models\ForumTopic::count());
+        $tryAndGauge('forum_posts_total', 'Total forum posts', fn () => \App\Models\ForumPost::count());
+        $tryAndGauge('forum_categories_total', 'Total forum categories', fn () => \App\Models\ForumCategory::count());
+        $tryAndGauge('forum_posts_last_hour', 'Forum posts created in the last hour', fn () => \App\Models\ForumPost::where('created_at', '>=', now()->subHour())->count());
+        $tryAndGauge('forum_topics_last_hour', 'Forum topics created in the last hour', fn () => \App\Models\ForumTopic::where('created_at', '>=', now()->subHour())->count());
     }
 }

@@ -9,12 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('username', 50)->unique();
             $table->string('password', 255);
-            $table->enum('skill_level', ['débutant','intermédiaire','confirmé','professionnel'])->nullable();
+            $table->enum('skill_level', ['débutant', 'intermédiaire', 'confirmé', 'professionnel'])->nullable();
             $table->timestamps();
 
             $table->index('skill_level');
@@ -24,7 +25,8 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('users');
     }
 };

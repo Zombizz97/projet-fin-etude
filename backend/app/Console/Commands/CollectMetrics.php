@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ForumCategory;
+use App\Models\ForumPost;
+use App\Models\ForumTopic;
+use App\Models\User;
 use App\Services\MetricsService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
-use App\Models\User;
-use App\Models\ForumTopic;
-use App\Models\ForumPost;
-use App\Models\ForumCategory;
 
 class CollectMetrics extends Command
 {
     protected $signature = 'metrics:collect {--push : Push metrics to a pushgateway}';
+
     protected $description = 'Collect and expose application metrics';
 
     public function handle(): int
@@ -70,14 +70,16 @@ class CollectMetrics extends Command
     private function pushToGateway(MetricsService $metrics): void
     {
         $gateway = config('prometheus.pushgateway_url');
-        if (!$gateway) {
+
+        if (! $gateway) {
             $this->warn('No pushgateway_url configured. Set PROMETHEUS_PUSHGATEWAY_URL.');
+
             return;
         }
 
         try {
-            $job = 'smashconnect-' . gethostname();
-            $url = rtrim($gateway, '/') . '/metrics/job/' . urlencode($job);
+            $job = 'smashconnect-'.gethostname();
+            $url = rtrim($gateway, '/').'/metrics/job/'.urlencode($job);
 
             $ch = curl_init($url);
             curl_setopt_array($ch, [

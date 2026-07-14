@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ForumController;
-use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\CharacterController;
+use App\Http\Controllers\ForumController;
 use App\Http\Controllers\MetricsController;
+use App\Http\Controllers\PlayerController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/metrics', [MetricsController::class, 'index']);
 

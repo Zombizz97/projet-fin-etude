@@ -39,7 +39,7 @@ class PrometheusMiddleware
             'Total HTTP requests',
             ['method', 'route', 'status_code']
         );
-        $counter->incBy(1, [$method, $route, (string)$response->getStatusCode()]);
+        $counter->incBy(1, [$method, $route, (string) $response->getStatusCode()]);
 
         $histogram = $this->metrics->createHistogram(
             'http_request_duration_ms',
@@ -59,6 +59,7 @@ class PrometheusMiddleware
                 return true;
             }
         }
+
         return false;
     }
 
@@ -68,6 +69,7 @@ class PrometheusMiddleware
         if ($route && method_exists($route, 'uri')) {
             return $route->uri();
         }
+
         return $request->path();
     }
 }

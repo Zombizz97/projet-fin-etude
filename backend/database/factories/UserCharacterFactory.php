@@ -19,4 +19,3 @@ class UserCharacterFactory extends Factory
         ];
     }
 }
-
