@@ -23,8 +23,8 @@ const mockApiData = [
     id: 1,
     name: 'General',
     topics: [
-      { id: 1, title: 'Topic 1', is_archived: false, created_at: '2024-01-01T00:00:00Z', user: { username: 'User1' }, posts_count: 5 },
-      { id: 2, title: 'Topic 2', is_archived: true, created_at: '2024-01-02T00:00:00Z', user: { username: 'User2' }, posts_count: 3 },
+      { id: 1, title: 'Topic 1', is_archived: false, created_at: '2024-01-02T00:00:00Z', user: { username: 'User1' }, posts_count: 5 },
+      { id: 2, title: 'Topic 2', is_archived: true, created_at: '2024-01-01T00:00:00Z', user: { username: 'User2' }, posts_count: 3 },
     ],
   },
 ]

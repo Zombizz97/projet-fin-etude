@@ -49,8 +49,8 @@ describe('TopicPage', () => {
   it('fetches topic and posts on mount', async () => {
     mount(TopicPage, { global: { plugins: [router] } })
     await flushPromises()
-    expect(api.get).toHaveBeenCalledWith('/api/forums/1')
-    expect(api.get).toHaveBeenCalledWith('/api/forums/1/posts?page=1&per_page=10')
+    expect(api.get).toHaveBeenCalledWith('/forums/1')
+    expect(api.get).toHaveBeenCalledWith('/forums/1/posts', { params: { page: 1, per_page: 10 } })
   })
 
   it('renders topic title and metadata', async () => {

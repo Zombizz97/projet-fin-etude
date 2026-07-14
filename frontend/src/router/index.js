@@ -25,6 +25,7 @@ router.beforeEach(async (to) => {
   const auth = useAuthStore()
   // si pas authentifié mais token présent, tente de recharger
   if (!auth.isAuthenticated && localStorage.getItem('token')) {
+    auth.setToken(localStorage.getItem('token'))
     await auth.fetchMe()
   }
   if (to.meta?.requiresAuth && !auth.isAuthenticated) {

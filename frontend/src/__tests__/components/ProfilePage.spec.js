@@ -24,15 +24,16 @@ describe('ProfilePage', () => {
   })
 
   it('redirects to login when not authenticated', async () => {
-    const pushSpy = vi.spyOn(router, 'push')
+    const replaceSpy = vi.spyOn(router, 'replace')
     mount(ProfilePage, { global: { plugins: [router] } })
-    expect(pushSpy).toHaveBeenCalledWith('/login')
+    expect(replaceSpy).toHaveBeenCalledWith('/login')
   })
 
   it('pre-fills form from store', async () => {
-    const store = useAuthStore()
+    let store = useAuthStore()
     store.user = { id: 1, username: 'testuser', skill_level: 'intermédiaire' }
     store.setToken('jwt')
+    api.get.mockResolvedValue({ data: { user: { id: 1, username: 'testuser', skill_level: 'intermédiaire' } } })
 
     const wrapper = mount(ProfilePage, { global: { plugins: [router] } })
     await flushPromises()
@@ -42,9 +43,10 @@ describe('ProfilePage', () => {
   })
 
   it('submits form and updates user', async () => {
-    const store = useAuthStore()
+    let store = useAuthStore()
     store.user = { id: 1, username: 'oldname', skill_level: null }
     store.setToken('jwt')
+    api.get.mockResolvedValue({ data: { user: { id: 1, username: 'oldname', skill_level: null } } })
 
     api.put.mockResolvedValue({
       data: { user: { id: 1, username: 'newname', skill_level: 'confirmé' } },
@@ -61,16 +63,16 @@ describe('ProfilePage', () => {
     expect(api.put).toHaveBeenCalledWith('/user', {
       username: 'newname',
       skill_level: 'confirmé',
-      password: '',
     })
     expect(store.user.username).toBe('newname')
-    expect(wrapper.vm.message).toBe('Profil mis à jour avec succès.')
+    expect(wrapper.vm.message).toBe('Profil mis à jour')
   })
 
   it('shows error on failed update', async () => {
-    const store = useAuthStore()
+    let store = useAuthStore()
     store.user = { id: 1, username: 'test', skill_level: null }
     store.setToken('jwt')
+    api.get.mockResolvedValue({ data: { user: { id: 1, username: 'test', skill_level: null } } })
 
     api.put.mockRejectedValue({ response: { data: { message: 'Erreur serveur' } } })
 

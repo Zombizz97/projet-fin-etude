@@ -81,14 +81,14 @@ class MetricsService
     {
         $namespace = config('prometheus.namespace', 'smashconnect');
 
-        return $this->registry->registerCounter($namespace, $name, $help, $labels);
+        return $this->registry->getOrRegisterCounter($namespace, $name, $help, $labels);
     }
 
     public function createGauge(string $name, string $help, array $labels = []): Gauge
     {
         $namespace = config('prometheus.namespace', 'smashconnect');
 
-        return $this->registry->registerGauge($namespace, $name, $help, $labels);
+        return $this->registry->getOrRegisterGauge($namespace, $name, $help, $labels);
     }
 
     public function createHistogram(string $name, string $help, array $labels = [], ?array $buckets = null): Histogram
@@ -98,7 +98,7 @@ class MetricsService
             $buckets = config('prometheus.http_buckets');
         }
 
-        return $this->registry->registerHistogram($namespace, $name, $help, $labels, $buckets);
+        return $this->registry->getOrRegisterHistogram($namespace, $name, $help, $labels, $buckets);
     }
 
     public function isRedisAvailable(): bool

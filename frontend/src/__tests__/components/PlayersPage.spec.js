@@ -81,6 +81,7 @@ describe('PlayersPage', () => {
     await flushPromises()
     wrapper.vm.currentPage = 2
     wrapper.vm.search = 'test'
+    await wrapper.vm.$nextTick()
     expect(wrapper.vm.currentPage).toBe(1)
   })
 

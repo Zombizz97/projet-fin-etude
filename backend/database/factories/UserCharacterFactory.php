@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Character;
+use App\Models\User;
 use App\Models\UserCharacter;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -13,8 +15,8 @@ class UserCharacterFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => null,
-            'character_id' => null,
+            'user_id' => User::factory(),
+            'character_id' => Character::factory(),
             'is_main' => fake()->boolean(30),
         ];
     }

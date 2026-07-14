@@ -15,7 +15,7 @@ class AuthControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('services.jwt.secret', 'test-secret-key-12345');
+        Config::set('services.jwt.secret', 'test-secret-key-12345-for-hs256-must-be-32bytes');
     }
 
     public function test_register_creates_user_and_returns_token(): void

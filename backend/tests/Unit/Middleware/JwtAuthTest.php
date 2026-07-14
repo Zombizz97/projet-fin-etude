@@ -14,7 +14,7 @@ class JwtAuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $secret = 'test-secret-key-12345';
+    private string $secret = 'test-secret-key-12345-for-hs256-must-be-32bytes';
 
     protected function setUp(): void
     {
