@@ -1,0 +1,45 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+rule_files:
+  - "alert-rules.yml"
+
+scrape_configs:
+  - job_name: 'smashconnect-backend'
+    scrape_interval: 15s
+    metrics_path: /api/metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - host.docker.internal:8000
+        labels:
+          environment: 'development'
+          service: 'backend'
+
+  - job_name: 'smashconnect-backend-production'
+    scrape_interval: 30s
+    metrics_path: /api/metrics
+    scheme: https
+    static_configs:
+      - targets:
+          - projet-fin-etude-nsc9.onrender.com
+        labels:
+          environment: 'production'
+          service: 'backend'
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '.*'
+        target_label: instance
+        replacement: 'smashconnect-api.onrender.com'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

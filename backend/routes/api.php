@@ -5,6 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\CharacterController;
+use App\Http\Controllers\MetricsController;
+
+Route::get('/metrics', [MetricsController::class, 'index']);
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
