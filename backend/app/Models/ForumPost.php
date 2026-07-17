@@ -40,6 +40,7 @@ class ForumPost extends Model
         return Attribute::get(function () {
             $up = $this->votes->where('vote', 'up')->count();
             $down = $this->votes->where('vote', 'down')->count();
+
             return $up - $down;
         });
     }

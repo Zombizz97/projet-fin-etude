@@ -6,7 +6,6 @@ use App\Models\ForumCategory;
 use App\Models\ForumPost;
 use App\Models\ForumPostVote;
 use App\Models\ForumTopic;
-use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\JsonResponse;
@@ -23,9 +22,12 @@ class ForumController extends Controller
         }
         $token = substr($authHeader, 7);
         $secret = Config::get('services.jwt.secret');
-        if (!$secret) return null;
+        if (!$secret) {
+            return null;
+        }
         try {
             $decoded = JWT::decode($token, new Key($secret, 'HS256'));
+
             return $decoded->sub ?? null;
         } catch (\Throwable $e) {
             return null;
@@ -34,7 +36,9 @@ class ForumController extends Controller
 
     private function loadUserVotes($posts, ?int $userId): void
     {
-        if (!$userId) return;
+        if (! $userId) {
+            return;
+        }
         $postIds = $posts->pluck('id');
         $userVotes = ForumPostVote::whereIn('post_id', $postIds)
             ->where('user_id', $userId)
@@ -60,7 +64,7 @@ class ForumController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->attributes->get('auth_user');
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -96,7 +100,7 @@ class ForumController extends Controller
         $topic = ForumTopic::with([
             'category',
             'user',
-            'posts' => function ($q) use ($userId) {
+            'posts' => function ($q) {
                 $q->with('user', 'votes')->orderBy('created_at', 'asc');
             },
         ])->withCount('posts')->findOrFail($id);
@@ -140,7 +144,7 @@ class ForumController extends Controller
     public function storePost(int $id, Request $request): JsonResponse
     {
         $user = $request->attributes->get('auth_user');
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -165,7 +169,7 @@ class ForumController extends Controller
     public function vote(int $id, Request $request): JsonResponse
     {
         $user = $request->attributes->get('auth_user');
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -183,10 +187,12 @@ class ForumController extends Controller
             if ($existing->vote === $validated['vote']) {
                 $existing->delete();
                 $post->load('votes');
+
                 return response()->json(['vote_balance' => $post->vote_balance, 'user_vote' => null]);
             }
             $existing->update(['vote' => $validated['vote']]);
             $post->load('votes');
+
             return response()->json(['vote_balance' => $post->vote_balance, 'user_vote' => $validated['vote']]);
         }
 
@@ -197,6 +203,7 @@ class ForumController extends Controller
         ]);
 
         $post->load('votes');
+
         return response()->json(['vote_balance' => $post->vote_balance, 'user_vote' => $validated['vote']], 201);
     }
 }
