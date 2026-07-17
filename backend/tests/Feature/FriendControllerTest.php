@@ -31,7 +31,7 @@ class FriendControllerTest extends TestCase
 
     private function authHeaders(User $user): array
     {
-        return ['Authorization' => 'Bearer ' . $this->token($user)];
+        return ['Authorization' => 'Bearer '.$this->token($user)];
     }
 
     public function test_send_request_success(): void
@@ -40,7 +40,7 @@ class FriendControllerTest extends TestCase
         $target = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id);
+            ->postJson('/api/friends/'.$target->id);
 
         $response->assertStatus(201)
             ->assertJson(['message' => "Demande d'ami envoyée"]);
@@ -57,7 +57,7 @@ class FriendControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $user->id);
+            ->postJson('/api/friends/'.$user->id);
 
         $response->assertStatus(400)
             ->assertJson(['message' => 'Vous ne pouvez pas vous ajouter vous-même']);
@@ -84,7 +84,7 @@ class FriendControllerTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id);
+            ->postJson('/api/friends/'.$target->id);
 
         $response->assertStatus(400)
             ->assertJson(['message' => 'Demande déjà envoyée']);
@@ -101,7 +101,7 @@ class FriendControllerTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id);
+            ->postJson('/api/friends/'.$target->id);
 
         $response->assertStatus(400)
             ->assertJson(['message' => 'Vous êtes déjà amis']);
@@ -118,7 +118,7 @@ class FriendControllerTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id);
+            ->postJson('/api/friends/'.$target->id);
 
         $response->assertStatus(400)
             ->assertJson(['message' => 'Cet utilisateur est bloqué']);
@@ -135,7 +135,7 @@ class FriendControllerTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $requester->id . '/accept');
+            ->postJson('/api/friends/'.$requester->id.'/accept');
 
         $response->assertStatus(200)
             ->assertJson(['message' => "Demande d'ami acceptée"]);
@@ -158,7 +158,7 @@ class FriendControllerTest extends TestCase
         $other = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $other->id . '/accept');
+            ->postJson('/api/friends/'.$other->id.'/accept');
 
         $response->assertStatus(404)
             ->assertJson(['message' => 'Aucune demande en attente']);
@@ -175,7 +175,7 @@ class FriendControllerTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->deleteJson('/api/friends/' . $requester->id . '/accept');
+            ->deleteJson('/api/friends/'.$requester->id.'/accept');
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Demande refusée']);
@@ -192,7 +192,7 @@ class FriendControllerTest extends TestCase
         $other = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->deleteJson('/api/friends/' . $other->id . '/accept');
+            ->deleteJson('/api/friends/'.$other->id.'/accept');
 
         $response->assertStatus(404);
     }
@@ -293,7 +293,7 @@ class FriendControllerTest extends TestCase
         UserRelationship::create(['user_id' => $friend->id, 'related_user_id' => $user->id, 'type' => 'friend']);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->deleteJson('/api/friends/' . $friend->id);
+            ->deleteJson('/api/friends/'.$friend->id);
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Ami supprimé']);
@@ -314,7 +314,7 @@ class FriendControllerTest extends TestCase
         $target = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id . '/block');
+            ->postJson('/api/friends/'.$target->id.'/block');
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Utilisateur bloqué']);
@@ -331,7 +331,7 @@ class FriendControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $user->id . '/block');
+            ->postJson('/api/friends/'.$user->id.'/block');
 
         $response->assertStatus(400)
             ->assertJson(['message' => 'Vous ne pouvez pas vous bloquer vous-même']);
@@ -355,7 +355,7 @@ class FriendControllerTest extends TestCase
         UserRelationship::create(['user_id' => $friend->id, 'related_user_id' => $user->id, 'type' => 'friend']);
 
         $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $friend->id . '/block');
+            ->postJson('/api/friends/'.$friend->id.'/block');
 
         $this->assertDatabaseHas('user_relationships', [
             'user_id' => $user->id,
@@ -379,7 +379,7 @@ class FriendControllerTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id . '/unblock');
+            ->postJson('/api/friends/'.$target->id.'/unblock');
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Utilisateur débloqué']);
@@ -396,7 +396,7 @@ class FriendControllerTest extends TestCase
         $target = User::factory()->create();
 
         $response = $this->withHeaders($this->authHeaders($user))
-            ->postJson('/api/friends/' . $target->id . '/unblock');
+            ->postJson('/api/friends/'.$target->id.'/unblock');
 
         $response->assertStatus(404)
             ->assertJson(['message' => "Cet utilisateur n'est pas bloqué"]);

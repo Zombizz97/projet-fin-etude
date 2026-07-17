@@ -72,7 +72,7 @@ class PlayerControllerTest extends TestCase
             'type' => 'friend',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->getJson('/api/players');
 
         $response->assertStatus(200);

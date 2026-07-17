@@ -134,7 +134,7 @@ class ForumControllerTest extends TestCase
         $user = User::factory()->create();
         $category = ForumCategory::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson('/api/forums', [
                 'category_id' => $category->id,
                 'title' => 'New Topic',
@@ -164,7 +164,7 @@ class ForumControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson('/api/forums', [
                 'category_id' => 999,
                 'title' => '',
@@ -179,7 +179,7 @@ class ForumControllerTest extends TestCase
         $user = User::factory()->create();
         $topic = ForumTopic::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson("/api/forums/{$topic->id}/posts", [
                 'content' => 'Reply content',
             ]);
@@ -210,7 +210,7 @@ class ForumControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson('/api/forums/99999/posts', ['content' => 'test']);
 
         $response->assertStatus(404);
@@ -221,7 +221,7 @@ class ForumControllerTest extends TestCase
         $user = User::factory()->create();
         $post = ForumPost::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'up']);
 
         $response->assertStatus(201)
@@ -234,7 +234,7 @@ class ForumControllerTest extends TestCase
         $user = User::factory()->create();
         $post = ForumPost::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'down']);
 
         $response->assertStatus(201)
@@ -252,7 +252,7 @@ class ForumControllerTest extends TestCase
             'vote' => 'up',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'up']);
 
         $response->assertStatus(200)
@@ -270,7 +270,7 @@ class ForumControllerTest extends TestCase
             'vote' => 'up',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'down']);
 
         $response->assertStatus(200)
@@ -292,7 +292,7 @@ class ForumControllerTest extends TestCase
         $user = User::factory()->create();
         $post = ForumPost::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'invalid']);
 
         $response->assertStatus(422);
@@ -302,7 +302,7 @@ class ForumControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $this->token($user))
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
             ->postJson('/api/posts/99999/vote', ['vote' => 'up']);
 
         $response->assertStatus(404);
