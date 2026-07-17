@@ -2,14 +2,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import ForumPage from '@/components/ForumPage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import api from '@/services/api'
 
 vi.mock('@/services/api', () => ({
   default: {
     get: vi.fn(),
+    post: vi.fn(),
     defaults: { headers: { common: {} } },
   },
 }))
+
+const pinia = createPinia()
 
 const router = createRouter({
   history: createWebHistory(),
@@ -38,13 +42,13 @@ describe('ForumPage', () => {
   })
 
   it('fetches forums on mount', async () => {
-    mount(ForumPage, { global: { plugins: [router] } })
+    mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     expect(api.get).toHaveBeenCalledWith('/forums')
   })
 
   it('renders topic cards', async () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     const cards = wrapper.findAll('.card')
     expect(cards).toHaveLength(2)
@@ -52,7 +56,7 @@ describe('ForumPage', () => {
   })
 
   it('filters by text search', async () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     const input = wrapper.find('.search input')
     await input.setValue('Topic 2')
@@ -61,7 +65,7 @@ describe('ForumPage', () => {
   })
 
   it('filters by state', async () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     wrapper.vm.stateFilter = 'archived'
     expect(wrapper.vm.filtered).toHaveLength(1)
@@ -69,7 +73,7 @@ describe('ForumPage', () => {
   })
 
   it('sorts by different fields', async () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     wrapper.vm.sortBy = 'messagesCount'
     wrapper.vm.sortDir = 'desc'
@@ -77,7 +81,7 @@ describe('ForumPage', () => {
   })
 
   it('paginates results', async () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     wrapper.vm.pageSize = 1
     expect(wrapper.vm.paged).toHaveLength(1)
@@ -85,7 +89,7 @@ describe('ForumPage', () => {
   })
 
   it('shows empty state when no results', async () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     const input = wrapper.find('.search input')
     await input.setValue('Nonexistent Topic')
@@ -95,7 +99,7 @@ describe('ForumPage', () => {
   })
 
   it('formats dates in French locale', () => {
-    const wrapper = mount(ForumPage, { global: { plugins: [router] } })
+    const wrapper = mount(ForumPage, { global: { plugins: [router, pinia] } })
     const date = wrapper.vm.formatDate('2024-06-15T10:30:00Z')
     expect(date).toContain('2024')
     expect(date).toContain('juin')

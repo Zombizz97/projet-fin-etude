@@ -15,8 +15,11 @@ Route::get('/auth/me', [AuthController::class, 'me'])->middleware('jwt');
 Route::put('/auth/me', [AuthController::class, 'me'])->middleware('jwt');
 
 Route::get('/forums', [ForumController::class, 'index']);
+Route::post('/forums', [ForumController::class, 'store'])->middleware('jwt');
 Route::get('/forums/{id}', [ForumController::class, 'show']);
 Route::get('/forums/{id}/posts', [ForumController::class, 'posts']);
+Route::post('/forums/{id}/posts', [ForumController::class, 'storePost'])->middleware('jwt');
+Route::post('/posts/{id}/vote', [ForumController::class, 'vote'])->middleware('jwt');
 Route::get('/players', [PlayerController::class, 'index']);
 Route::get('/characters', [CharacterController::class, 'index']);
 Route::put('/user', [AuthController::class, 'update'])->middleware('jwt');
