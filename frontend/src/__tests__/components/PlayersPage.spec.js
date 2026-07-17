@@ -2,14 +2,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import PlayersPage from '@/components/PlayersPage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import api from '@/services/api'
 
 vi.mock('@/services/api', () => ({
   default: {
     get: vi.fn(),
+    post: vi.fn(),
     defaults: { headers: { common: {} } },
   },
 }))
+
+const pinia = createPinia()
 
 const router = createRouter({
   history: createWebHistory(),
@@ -39,7 +43,7 @@ describe('PlayersPage', () => {
   })
 
   it('fetches players and characters on mount', async () => {
-    mount(PlayersPage, { global: { plugins: [router] } })
+    mount(PlayersPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     expect(api.get).toHaveBeenCalledWith('/players')
     expect(api.get).toHaveBeenCalledWith('/characters')

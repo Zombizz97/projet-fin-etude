@@ -57,6 +57,12 @@
                         </span>
                     </div>
                 </div>
+                <div v-if="isAuthenticated && player.id !== myId" class="card-footer">
+                    <button v-if="!player.friendship_status" class="btn btn-primary btn-sm" @click="sendFriendRequest(player)">+ Ajouter en ami</button>
+                    <span v-else-if="player.friendship_status === 'pending'" class="status">Demande envoyée</span>
+                    <span v-else-if="player.friendship_status === 'friend'" class="status friend">✓ Amis</span>
+                    <span v-else-if="player.friendship_status === 'blocked'" class="status blocked">Bloqué</span>
+                </div>
             </div>
 
             <div v-if="paginatedPlayers.length === 0" class="empty">
@@ -76,6 +82,7 @@
 <script>
     import Pagination from './Pagination.vue'
     import api from '@/services/api'
+    import { useAuthStore } from '@/stores/auth'
     import MultiSelect from 'primevue/multiselect'
 
     export default {
@@ -94,11 +101,12 @@
                 'débutant', 'intermédiaire', 'confirmé', 'professionnel'
             ],
             characterOptions: [],
+            isAuthenticated: false,
+            myId: null,
         };
     },
     computed: {
         normalizedPlayers() {
-            // Assure une structure uniforme pour l’affichage et les filtres
             return this.players.map(u => {
                 const characterInfos = Array.isArray(u.characters)
                     ? u.characters.map(uc => ({
@@ -111,6 +119,7 @@
                     username: u.username || u.name || '',
                     skill_level: u.skill_level || '',
                     characterInfos,
+                    friendship_status: u.friendship_status || null,
                 }
             })
         },
@@ -164,9 +173,20 @@
             } catch (e) {
                 console.error('Erreur de chargement des personnages', e)
             }
+        },
+        async sendFriendRequest(player) {
+            try {
+                await api.post(`/friends/${player.id}`)
+                player.friendship_status = 'pending'
+            } catch (e) {
+                console.error('Erreur envoi demande ami', e)
+            }
         }
     },
     async mounted() {
+        const auth = useAuthStore()
+        this.isAuthenticated = auth.isAuthenticated
+        this.myId = auth.user?.id || null
         await Promise.all([
             this.loadPlayers(),
             this.loadCharacters(),
@@ -178,4 +198,9 @@
 <style scoped>
 .icon { width: 20px; height: 20px; object-fit: contain; }
 .icon.right { margin-left: 6px; }
+.card-footer { padding: .5rem 1rem 1rem; }
+.btn-sm { font-size: .8rem; padding: .25rem .65rem; }
+.status { font-size: .8rem; font-style: italic; }
+.status.friend { color: #4caf50; }
+.status.blocked { color: #f44336; }
 </style>

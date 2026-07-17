@@ -6,6 +6,7 @@ import PlayersPage from "@/components/PlayersPage.vue";
 import LoginPage from "@/components/LoginPage.vue";
 import RegisterPage from "@/components/RegisterPage.vue";
 import ProfilePage from '@/components/ProfilePage.vue'
+import FriendsPage from '@/components/FriendsPage.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -18,6 +19,7 @@ const router = createRouter({
     { path: '/login', name: 'login', component: LoginPage },
     { path: '/register', name: 'register', component: RegisterPage },
     { path: '/profile', name: 'profile', component: ProfilePage, meta: { requiresAuth: true } },
+    { path: '/friends', name: 'friends', component: FriendsPage, meta: { requiresAuth: true } },
   ],
 })
 

@@ -31,7 +31,7 @@
                 </div>
                 <div class="post-content">
                     <div class="post-header">
-                        <strong>{{ p.user?.username || p.user?.name || 'Utilisateur' }}</strong>
+                        <strong class="clickable-user" @click="openUserPopover(p.user?.id, $event)">{{ p.user?.username || p.user?.name || 'Utilisateur' }}</strong>
                         <span class="date"> - {{ formatDate(p.created_at) }}</span>
                     </div>
                     <div class="post-body">
@@ -57,6 +57,12 @@
                     <div v-if="replyError" class="error-msg">{{ replyError }}</div>
                 </form>
             </div>
+            <UserPopover
+                :userId="popoverUserId"
+                :visible="popoverVisible"
+                :position="popoverPosition"
+                @close="popoverVisible = false"
+            />
         </div>
 
         <PaginationControls
@@ -72,11 +78,12 @@
 <script>
 import api from '@/services/api'
 import PaginationControls from '@/components/Pagination.vue'
+import UserPopover from '@/components/UserPopover.vue'
 import { useAuthStore } from '@/stores/auth'
 
 export default {
     name: 'TopicPage',
-    components: { PaginationControls },
+    components: { PaginationControls, UserPopover },
     data() {
         return {
             topic: null,
@@ -90,6 +97,9 @@ export default {
             replyContent: '',
             sending: false,
             replyError: null,
+            popoverUserId: 0,
+            popoverVisible: false,
+            popoverPosition: {},
         }
     },
     computed: {
@@ -185,6 +195,16 @@ export default {
             this.page = 1
             this.fetchPosts()
         },
+        openUserPopover(userId, event) {
+            if (!userId) return
+            const rect = event.target.getBoundingClientRect()
+            this.popoverUserId = userId
+            this.popoverPosition = {
+                top: (rect.bottom + 8) + 'px',
+                left: Math.min(rect.left, window.innerWidth - 250) + 'px',
+            }
+            this.popoverVisible = true
+        },
         formatDate(iso) {
             if (!iso) return '-'
             const d = new Date(iso)
@@ -209,6 +229,8 @@ export default {
 .post-content { flex: 1; min-width: 0; }
 .post-header { display: flex; gap: .5rem; margin-bottom: .5rem; }
 .post-header strong { color: var(--color-accent-primary); }
+.clickable-user { cursor: pointer; border-bottom: 1px dashed var(--color-accent-primary); }
+.clickable-user:hover { opacity: .8; }
 .date { color: var(--color-text-primary); font-size: .85rem; }
 .content { white-space: normal; }
 .loading { color: #777; }
