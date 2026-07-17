@@ -2,7 +2,7 @@
     <nav class="navbar bg-surface top-0 left-0 right-0">
         <div class="navbar-left">
             <RouterLink to="/" class="brand">
-                <img src="/full-logo.svg" alt="Logo" class="brand-logo" />
+                <img :src="brandLogo" alt="Logo" class="brand-logo" />
             </RouterLink>
         </div>
 
@@ -89,7 +89,7 @@ export default {
         }
     },
     data() {
-        return { isOpen: false }
+        return { isOpen: false, brandLogo: '/full-logo.svg' }
     },
     methods: {
         open() { this.isOpen = true },

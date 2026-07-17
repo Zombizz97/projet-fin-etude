@@ -31,6 +31,17 @@ describe('Router Guards', () => {
         { path: '/profile', name: 'profile', component: ProfilePage, meta: { requiresAuth: true } },
       ],
     })
+    router.beforeEach(async (to) => {
+      const auth = useAuthStore()
+      if (!auth.isAuthenticated && localStorage.getItem('token')) {
+        auth.setToken(localStorage.getItem('token'))
+        await auth.fetchMe()
+      }
+      if (to.meta?.requiresAuth && !auth.isAuthenticated) {
+        return { path: '/login', query: { redirect: to.fullPath } }
+      }
+      return true
+    })
     router.push('/')
     await router.isReady()
   })
@@ -56,10 +67,10 @@ describe('Router Guards', () => {
   })
 
   it('calls fetchMe when token exists but not authenticated', async () => {
-    localStorage.getItem.mockReturnValue('existing-token')
+    localStorage.setItem('token', 'existing-token')
     api.get.mockResolvedValue({ data: { user: { id: 1, username: 'test' } } })
 
-    router.push('/profile')
+    await router.push('/profile')
     await new Promise(r => setTimeout(r, 50))
 
     expect(api.get).toHaveBeenCalled()

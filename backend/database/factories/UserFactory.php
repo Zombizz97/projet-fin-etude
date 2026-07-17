@@ -12,7 +12,8 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
-        $levels = ['débutant','intermédiaire','confirmé','professionnel'];
+        $levels = ['débutant', 'intermédiaire', 'confirmé', 'professionnel'];
+
         return [
             'username' => fake()->unique()->userName(),
             'password' => 'password', // sera hashé via cast
@@ -20,4 +21,3 @@ class UserFactory extends Factory
         ];
     }
 }
-

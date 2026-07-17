@@ -11,6 +11,7 @@ class CharacterController extends Controller
     public function index(): JsonResponse
     {
         $characters = Character::query()->orderBy('name')->get();
+
         return response()->json($characters);
     }
 }

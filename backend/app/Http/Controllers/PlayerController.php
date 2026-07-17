@@ -11,7 +11,7 @@ class PlayerController extends Controller
     public function index(): JsonResponse
     {
         $players = User::with(['characters.character'])->get();
+
         return response()->json($players);
     }
 }
-

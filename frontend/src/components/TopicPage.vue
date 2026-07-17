@@ -51,7 +51,7 @@ export default {
         return {
             topic: null,
             posts: [],
-            loading: false,
+            loading: true,
             error: null,
             page: 1,
             pageSize: 10,

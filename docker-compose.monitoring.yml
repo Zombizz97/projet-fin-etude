@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: smashconnect-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    networks:
+      - smashconnect-monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: smashconnect-alertmanager
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    ports:
+      - "9093:9093"
+    networks:
+      - smashconnect-monitoring
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: smashconnect-grafana
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_DEFAULT_THEME=dark
+      - GF_INSTALL_PLUGINS=
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    ports:
+      - "3000:3000"
+    networks:
+      - smashconnect-monitoring
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    container_name: smashconnect-node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - smashconnect-monitoring
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  smashconnect-monitoring:
+    driver: bridge

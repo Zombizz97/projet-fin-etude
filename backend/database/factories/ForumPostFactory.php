@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\ForumPost;
+use App\Models\ForumTopic;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /** @extends Factory<ForumPost> */
@@ -13,9 +15,9 @@ class ForumPostFactory extends Factory
     public function definition(): array
     {
         return [
-            'topic_id' => null,
-            'user_id' => null,
-            'content' => fake()->paragraphs(random_int(1,2), true),
+            'topic_id' => ForumTopic::factory(),
+            'user_id' => User::factory(),
+            'content' => fake()->paragraphs(random_int(1, 2), true),
         ];
     }
 }

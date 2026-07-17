@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import Navbar from '@/components/Navbar.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import api from '@/services/api'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -54,6 +55,7 @@ describe('Navbar', () => {
     const store = useAuthStore()
     store.user = { id: 1, username: 'TestUser', avatarUrl: null }
     store.setToken('jwt')
+    api.get.mockResolvedValue({ data: { user: { id: 1, username: 'TestUser', avatarUrl: null } } })
 
     const wrapper = factory()
     await wrapper.vm.$nextTick()
@@ -66,6 +68,7 @@ describe('Navbar', () => {
     const store = useAuthStore()
     store.user = { id: 1, username: 'TestUser' }
     store.setToken('jwt')
+    api.get.mockResolvedValue({ data: { user: { id: 1, username: 'TestUser' } } })
     const logoutSpy = vi.spyOn(store, 'logout')
 
     const wrapper = factory()
