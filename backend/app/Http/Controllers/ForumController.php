@@ -17,12 +17,12 @@ class ForumController extends Controller
     private function getOptionalUserId(Request $request): ?int
     {
         $authHeader = $request->header('Authorization');
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return null;
         }
         $token = substr($authHeader, 7);
         $secret = Config::get('services.jwt.secret');
-        if (!$secret) {
+        if (! $secret) {
             return null;
         }
         try {
