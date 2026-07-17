@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\JwtAuth;
+use App\Http\Middleware\PrometheusMiddleware;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'jwt' => JwtAuth::class,
         ]);
         $middleware->api(append: [
-            \App\Http\Middleware\PrometheusMiddleware::class,
+            PrometheusMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {})->create();
