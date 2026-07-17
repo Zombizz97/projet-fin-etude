@@ -1,4 +1,3 @@
-<!-- language: javascript -->
 <template>
     <section class="forum">
         <header class="forum-header">
@@ -28,6 +27,10 @@
 
                     <button class="btn" @click="toggleSortDir">
                         Tri {{ sortDir === 'asc' ? '↑' : '↓' }}
+                    </button>
+
+                    <button v-if="isAuthenticated" class="btn btn-primary" @click="showCreateModal = true">
+                        + Nouveau sujet
                     </button>
                 </div>
             </div>
@@ -77,31 +80,42 @@
             :totalPages="totalPages"
             @update:pageSize="setPage(1)"
         />
+
+        <CreateTopicModal
+            :visible="showCreateModal"
+            :categories="categories"
+            @close="showCreateModal = false"
+            @created="onTopicCreated"
+        />
     </section>
 </template>
 
 <script>
 import PaginationControls from "@/components/Pagination.vue";
+import CreateTopicModal from "@/components/CreateTopicModal.vue";
 import api from '@/services/api'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
     name: 'ForumPage',
-    components: { PaginationControls },
+    components: { PaginationControls, CreateTopicModal },
     data() {
         return {
             topics: [],
+            categories: [],
             q: '',
             sortBy: 'lastMessageAt',
             sortDir: 'desc',
             stateFilter: 'all',
             page: 1,
             pageSize: 5,
+            showCreateModal: false,
         }
     },
-    mounted() {
-        this.getForums();
-    },
     computed: {
+        isAuthenticated() {
+            return useAuthStore().isAuthenticated
+        },
         filtered() {
             const query = this.q.trim().toLowerCase()
             return this.topics.filter(t => {
@@ -158,6 +172,7 @@ export default {
             try {
                 const res = await api.get('/forums')
                 const categories = Array.isArray(res.data) ? res.data : []
+                this.categories = categories
                 const topics = []
                 for (const cat of categories) {
                     const forumName = cat.name
@@ -178,7 +193,23 @@ export default {
             } catch (e) {
                 console.error('Erreur lors du chargement des forums', e)
             }
+        },
+        onTopicCreated(newTopic) {
+            this.showCreateModal = false
+            this.topics.unshift({
+                id: newTopic.id,
+                title: newTopic.title,
+                forumName: newTopic.category?.name || 'Général',
+                messagesCount: newTopic.posts_count ?? 1,
+                createdAt: newTopic.created_at,
+                lastMessageAt: newTopic.created_at,
+                isArchived: false,
+            })
+            this.setPage(1)
         }
+    },
+    mounted() {
+        this.getForums();
     },
 }
 </script>

@@ -2,14 +2,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import TopicPage from '@/components/TopicPage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import api from '@/services/api'
 
 vi.mock('@/services/api', () => ({
   default: {
     get: vi.fn(),
+    post: vi.fn(),
     defaults: { headers: { common: {} } },
   },
 }))
+
+const pinia = createPinia()
 
 const router = createRouter({
   history: createWebHistory(),
@@ -47,14 +51,14 @@ describe('TopicPage', () => {
   })
 
   it('fetches topic and posts on mount', async () => {
-    mount(TopicPage, { global: { plugins: [router] } })
+    mount(TopicPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     expect(api.get).toHaveBeenCalledWith('/forums/1')
     expect(api.get).toHaveBeenCalledWith('/forums/1/posts', { params: { page: 1, per_page: 10 } })
   })
 
   it('renders topic title and metadata', async () => {
-    const wrapper = mount(TopicPage, { global: { plugins: [router] } })
+    const wrapper = mount(TopicPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     expect(wrapper.text()).toContain('Test Topic')
     expect(wrapper.text()).toContain('Dans: General')
@@ -62,7 +66,7 @@ describe('TopicPage', () => {
   })
 
   it('renders posts', async () => {
-    const wrapper = mount(TopicPage, { global: { plugins: [router] } })
+    const wrapper = mount(TopicPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     const posts = wrapper.findAll('.post')
     expect(posts).toHaveLength(3)
@@ -71,25 +75,25 @@ describe('TopicPage', () => {
   })
 
   it('shows loading state initially', () => {
-    const wrapper = mount(TopicPage, { global: { plugins: [router] } })
+    const wrapper = mount(TopicPage, { global: { plugins: [router, pinia] } })
     expect(wrapper.text()).toContain('Chargement…')
   })
 
   it('formats content with br tags', async () => {
-    const wrapper = mount(TopicPage, { global: { plugins: [router] } })
+    const wrapper = mount(TopicPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     const content = wrapper.vm.formatContent('Hello\nWorld')
     expect(content).toBe('Hello<br/>World')
   })
 
   it('formats dates', () => {
-    const wrapper = mount(TopicPage, { global: { plugins: [router] } })
+    const wrapper = mount(TopicPage, { global: { plugins: [router, pinia] } })
     const date = wrapper.vm.formatDate('2024-06-15T10:30:00Z')
     expect(date).toBeTruthy()
   })
 
   it('handles page change', async () => {
-    const wrapper = mount(TopicPage, { global: { plugins: [router] } })
+    const wrapper = mount(TopicPage, { global: { plugins: [router, pinia] } })
     await flushPromises()
     vi.clearAllMocks()
     api.get.mockResolvedValue({ data: { data: [], meta: { current_page: 2, last_page: 3, per_page: 10, total: 22 } } })
