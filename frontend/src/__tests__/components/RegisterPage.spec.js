@@ -66,7 +66,7 @@ describe('RegisterPage', () => {
     await wrapper.find('#password').setValue('12')
     await wrapper.find('#confirm').setValue('12')
     await wrapper.find('form').trigger('submit')
-    expect(wrapper.vm.errors.password).toBe('Minimum 6 caractères.')
+    expect(wrapper.vm.errors.password).toBe('Au moins 6 caractères.')
   })
 
   it('validates password confirmation match', async () => {
@@ -88,6 +88,8 @@ describe('RegisterPage', () => {
     const wrapper = mount(RegisterPage, { global: { plugins: [router] } })
     await flushPromises()
 
+    wrapper.vm.main = { id: 1, name: 'Mario', icon: '' }
+    wrapper.vm.level = 'Débutant'
     await wrapper.find('#pseudo').setValue('newuser')
     await wrapper.find('#password').setValue('password123')
     await wrapper.find('#confirm').setValue('password123')
@@ -97,8 +99,8 @@ describe('RegisterPage', () => {
     expect(api.post).toHaveBeenCalledWith('/auth/register', {
       username: 'newuser',
       password: 'password123',
-      skill_level: null,
-      character_id: undefined,
+      skill_level: 'débutant',
+      character_id: 1,
     })
     const store = useAuthStore()
     expect(store.token).toBe('jwt')

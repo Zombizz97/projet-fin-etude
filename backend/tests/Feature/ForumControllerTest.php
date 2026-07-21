@@ -3,15 +3,34 @@
 namespace Tests\Feature;
 
 use App\Models\ForumCategory;
-use App\Models\ForumTopic;
 use App\Models\ForumPost;
+use App\Models\ForumPostVote;
+use App\Models\ForumTopic;
 use App\Models\User;
+use Firebase\JWT\JWT;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
 class ForumControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Config::set('services.jwt.secret', 'test-secret-key-12345-for-hs256-must-be-32bytes');
+    }
+
+    private function token(User $user): string
+    {
+        return JWT::encode([
+            'iss' => url('/'),
+            'sub' => $user->id,
+            'iat' => now()->timestamp,
+            'exp' => now()->addDays(7)->timestamp,
+        ], Config::get('services.jwt.secret'), 'HS256');
+    }
 
     public function test_index_returns_categories_with_topics(): void
     {
@@ -107,6 +126,185 @@ class ForumControllerTest extends TestCase
     public function test_posts_returns_404_for_nonexistent_topic(): void
     {
         $response = $this->getJson('/api/forums/99999/posts');
+        $response->assertStatus(404);
+    }
+
+    public function test_store_creates_topic_and_post(): void
+    {
+        $user = User::factory()->create();
+        $category = ForumCategory::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson('/api/forums', [
+                'category_id' => $category->id,
+                'title' => 'New Topic',
+                'content' => 'First post content',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('title', 'New Topic')
+            ->assertJsonStructure(['id', 'title', 'category', 'user', 'posts_count']);
+
+        $this->assertDatabaseHas('forum_topics', ['title' => 'New Topic']);
+        $this->assertDatabaseHas('forum_posts', ['content' => 'First post content']);
+    }
+
+    public function test_store_unauthenticated(): void
+    {
+        $response = $this->postJson('/api/forums', [
+            'category_id' => 1,
+            'title' => 'Test',
+            'content' => 'Content',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_store_validation_errors(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson('/api/forums', [
+                'category_id' => 999,
+                'title' => '',
+                'content' => '',
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_store_post_adds_reply(): void
+    {
+        $user = User::factory()->create();
+        $topic = ForumTopic::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson("/api/forums/{$topic->id}/posts", [
+                'content' => 'Reply content',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('content', 'Reply content')
+            ->assertJsonPath('user.username', $user->username);
+
+        $this->assertDatabaseHas('forum_posts', [
+            'topic_id' => $topic->id,
+            'user_id' => $user->id,
+            'content' => 'Reply content',
+        ]);
+    }
+
+    public function test_store_post_unauthenticated(): void
+    {
+        $topic = ForumTopic::factory()->create();
+
+        $response = $this->postJson("/api/forums/{$topic->id}/posts", [
+            'content' => 'Reply',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_store_post_404(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson('/api/forums/99999/posts', ['content' => 'test']);
+
+        $response->assertStatus(404);
+    }
+
+    public function test_vote_up(): void
+    {
+        $user = User::factory()->create();
+        $post = ForumPost::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'up']);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('vote_balance', 1)
+            ->assertJsonPath('user_vote', 'up');
+    }
+
+    public function test_vote_down(): void
+    {
+        $user = User::factory()->create();
+        $post = ForumPost::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'down']);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('vote_balance', -1)
+            ->assertJsonPath('user_vote', 'down');
+    }
+
+    public function test_vote_toggle_removes_same_vote(): void
+    {
+        $user = User::factory()->create();
+        $post = ForumPost::factory()->create();
+        ForumPostVote::create([
+            'post_id' => $post->id,
+            'user_id' => $user->id,
+            'vote' => 'up',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'up']);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('vote_balance', 0)
+            ->assertJsonPath('user_vote', null);
+    }
+
+    public function test_vote_change(): void
+    {
+        $user = User::factory()->create();
+        $post = ForumPost::factory()->create();
+        ForumPostVote::create([
+            'post_id' => $post->id,
+            'user_id' => $user->id,
+            'vote' => 'up',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'down']);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('vote_balance', -1)
+            ->assertJsonPath('user_vote', 'down');
+    }
+
+    public function test_vote_unauthenticated(): void
+    {
+        $post = ForumPost::factory()->create();
+
+        $response = $this->postJson("/api/posts/{$post->id}/vote", ['vote' => 'up']);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_vote_invalid_type(): void
+    {
+        $user = User::factory()->create();
+        $post = ForumPost::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson("/api/posts/{$post->id}/vote", ['vote' => 'invalid']);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_vote_404(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token($user))
+            ->postJson('/api/posts/99999/vote', ['vote' => 'up']);
+
         $response->assertStatus(404);
     }
 }

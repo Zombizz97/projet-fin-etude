@@ -1,0 +1,59 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: '{{ .SlackWebhookURL }}'
+
+route:
+  receiver: 'default'
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - receiver: 'critical'
+      matchers:
+        - severity = critical
+      repeat_interval: 30m
+    - receiver: 'warning'
+      matchers:
+        - severity = warning
+      repeat_interval: 2h
+    - receiver: 'default'
+      matchers:
+        - severity = info
+      repeat_interval: 6h
+
+receivers:
+  - name: 'default'
+    slack_configs:
+      - channel: '#monitoring'
+        title: '{{ .GroupLabels.alertname }}'
+        text: '{{ .CommonAnnotations.description }}'
+        actions:
+          - type: button
+            text: 'Voir sur Grafana'
+            url: '{{ .ExternalURL }}'
+    webhook_configs:
+      - url: 'http://host.docker.internal:9000/hooks/alert'
+        send_resolved: true
+
+  - name: 'critical'
+    slack_configs:
+      - channel: '#alerts-critical'
+        title: '🚨 CRITIQUE: {{ .GroupLabels.alertname }}'
+        text: '{{ .CommonAnnotations.description }}\n{{ .CommonAnnotations.action }}'
+        actions:
+          - type: button
+            text: 'Voir sur Grafana'
+            url: '{{ .ExternalURL }}'
+    webhook_configs:
+      - url: 'http://host.docker.internal:9000/hooks/alert'
+        send_resolved: true
+
+  - name: 'warning'
+    slack_configs:
+      - channel: '#alerts-warning'
+        title: '⚠️ ATTENTION: {{ .GroupLabels.alertname }}'
+        text: '{{ .CommonAnnotations.description }}\n{{ .CommonAnnotations.action }}'
+    webhook_configs:
+      - url: 'http://host.docker.internal:9000/hooks/alert'
+        send_resolved: true

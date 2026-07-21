@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Character;
-use App\Models\UserCharacter;
 use App\Models\ForumCategory;
-use App\Models\ForumTopic;
 use App\Models\ForumPost;
+use App\Models\ForumTopic;
+use App\Models\User;
+use App\Models\UserCharacter;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 
 class DatabaseSeeder extends Seeder
 {
@@ -86,19 +86,19 @@ class DatabaseSeeder extends Seeder
                 ->timeout(20)
                 ->retry(2, 500)
                 ->get($endpoint);
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 // API uniquement: pas de fallback
                 return collect();
             }
             $data = $response->json();
-            if (!is_array($data)) {
+            if (! is_array($data)) {
                 return collect();
             }
             $inserted = collect();
             foreach ($data as $item) {
                 $name = Arr::get($item, 'name');
                 $icon = Arr::get($item, 'images.icon');
-                if (!$name) {
+                if (! $name) {
                     continue;
                 }
                 $character = Character::updateOrCreate(
@@ -107,6 +107,7 @@ class DatabaseSeeder extends Seeder
                 );
                 $inserted->push($character);
             }
+
             return $inserted;
         } catch (\Throwable $e) {
             return collect();

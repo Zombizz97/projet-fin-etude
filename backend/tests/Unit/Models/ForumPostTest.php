@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\User;
-use App\Models\ForumTopic;
 use App\Models\ForumPost;
+use App\Models\ForumTopic;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

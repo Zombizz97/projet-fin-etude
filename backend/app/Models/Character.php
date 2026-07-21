@@ -20,4 +20,3 @@ class Character extends Model
         return $this->hasMany(UserCharacter::class);
     }
 }
-

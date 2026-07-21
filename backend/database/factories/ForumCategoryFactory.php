@@ -17,4 +17,3 @@ class ForumCategoryFactory extends Factory
         ];
     }
 }
-

@@ -55,7 +55,7 @@ describe('PaginationControls', () => {
 
   it('clamps page to valid range', async () => {
     const wrapper = mount(PaginationControls, {
-      props: { page: 1, totalPages: 5 },
+      props: { page: 0, totalPages: 5 },
     })
     const prevBtn = wrapper.findAll('button').at(0)
     await prevBtn.trigger('click')

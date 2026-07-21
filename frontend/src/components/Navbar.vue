@@ -2,7 +2,7 @@
     <nav class="navbar bg-surface top-0 left-0 right-0">
         <div class="navbar-left">
             <RouterLink to="/" class="brand">
-                <img src="/full-logo.svg" alt="Logo" class="brand-logo" />
+                <img :src="brandLogo" alt="Logo" class="brand-logo" />
             </RouterLink>
         </div>
 
@@ -10,6 +10,7 @@
             <RouterLink to="/" class="navlink" active-class="active">Acceuil</RouterLink>
             <RouterLink to="/forum" class="navlink" active-class="active">Forum</RouterLink>
             <RouterLink to="/players" class="navlink" active-class="active">Joueurs</RouterLink>
+            <RouterLink v-if="isAuthenticated" to="/friends" class="navlink" active-class="active">Amis</RouterLink>
         </div>
 
         <div class="navbar-right">
@@ -53,6 +54,7 @@
                 <RouterLink to="/" class="mobile-link" active-class="active" @click="close">Acceuil</RouterLink>
                 <RouterLink to="/forum" class="mobile-link" active-class="active" @click="close">Forum</RouterLink>
                 <RouterLink to="/players" class="mobile-link" active-class="active" @click="close">Joueurs</RouterLink>
+                <RouterLink v-if="isAuthenticated" to="/friends" class="mobile-link" active-class="active" @click="close">Amis</RouterLink>
             </nav>
 
             <div class="mobile-actions">
@@ -89,7 +91,7 @@ export default {
         }
     },
     data() {
-        return { isOpen: false }
+        return { isOpen: false, brandLogo: '/full-logo.svg' }
     },
     methods: {
         open() { this.isOpen = true },

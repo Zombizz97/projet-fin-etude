@@ -1,3 +1,38 @@
-.idea
-package-lock.json
-node_modules
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build
+/dist
+/public/build
+
+# Cache
+.cache
+.phpunit.cache
+.phpunit.result.cache
+
+# Coverage
+coverage/
+coverage.xml

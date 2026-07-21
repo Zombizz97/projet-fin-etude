@@ -1,0 +1,116 @@
+groups:
+  - name: smashconnect-backend
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"smashconnect-backend.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Le backend SmashConnect est injoignable (instance: {{ $labels.instance }})"
+          description: "Le service backend ne répond plus depuis plus d'une minute."
+          action: "Vérifier le statut du déploiement sur Render et consulter les logs."
+
+      - alert: HighErrorRate
+        expr: |
+          rate(smashconnect_http_requests_total{status_group="5xx"}[5m])
+          /
+          rate(smashconnect_http_requests_total[5m])
+          > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreur 5xx élevé ({{ $value | humanizePercentage }})"
+          description: "Le taux d'erreur 5xx est de {{ $value | humanizePercentage }} sur les 5 dernières minutes (seuil: 5%)."
+          action: "Vérifier les logs serveur et les exceptions récentes."
+
+      - alert: HighResponseTimeP99
+        expr: |
+          histogram_quantile(0.99,
+            rate(smashconnect_http_request_duration_ms_bucket[5m])
+          ) > 2000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Temps de réponse P99 élevé ({{ $value | humanizeDuration }})"
+          description: "Le 99e percentile du temps de réponse dépasse 2 secondes (actuel: {{ $value | humanizeDuration }})."
+          action: "Vérifier les performances de la base de données et les requêtes lentes."
+
+      - alert: HighResponseTimeP50
+        expr: |
+          histogram_quantile(0.50,
+            rate(smashconnect_http_request_duration_ms_bucket[5m])
+          ) > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Temps de réponse médian élevé ({{ $value | humanizeDuration }})"
+          description: "Le temps de réponse médian dépasse 500ms (actuel: {{ $value | humanizeDuration }})."
+          action: "Analyser les performances générales de l'application."
+
+      - alert: High4xxRate
+        expr: |
+          rate(smashconnect_http_requests_total{status_group="4xx"}[5m])
+          /
+          rate(smashconnect_http_requests_total[5m])
+          > 0.20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux d'erreur 4xx élevé ({{ $value | humanizePercentage }})"
+          description: "Le taux d'erreur 4xx est de {{ $value | humanizePercentage }} (seuil: 20%)."
+          action: "Vérifier les tentatives d'accès non autorisées ou les requêtes invalides."
+
+      - alert: LowRegistrationRate
+        expr: |
+          rate(smashconnect_users_total[1h])
+          < 0.5
+        for: 6h
+        labels:
+          severity: info
+        annotations:
+          summary: "Faible taux d'inscriptions"
+          description: "Moins d'une inscription par heure en moyenne sur les 6 dernières heures."
+          action: "Vérifier si une campagne d'inscription est en cours ou si le trafic est anormalement bas."
+
+      - alert: HighTrafficSurge
+        expr: |
+          rate(smashconnect_http_requests_total[5m])
+          /
+          rate(smashconnect_http_requests_total[30m])
+          > 3
+        for: 2m
+        labels:
+          severity: info
+        annotations:
+          summary: "Pic de trafic soudain (x{{ $value | humanize }})"
+          description: "Le trafic a augmenté de {{ $value | humanize }}x par rapport à la moyenne des 30 dernières minutes."
+          action: "Surveiller les performances et préparer un éventuel scaling."
+
+      - alert: ForumActivityDrop
+        expr: |
+          rate(smashconnect_forum_posts_total[1h])
+          < 1
+        for: 12h
+        labels:
+          severity: info
+        annotations:
+          summary: "Faible activité forum"
+          description: "Moins d'un post de forum par heure depuis 12 heures."
+          action: "Envisager une relance de la communauté ou une vérification des fonctionnalités du forum."
+
+      - alert: InstanceRestart
+        expr: |
+          time() - process_start_time_seconds{job=~"smashconnect-backend.*"} < 120
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redémarrage d'instance détecté ({{ $labels.instance }})"
+          description: "L'instance backend a redémarré il y a moins de 2 minutes."
+          action: "Vérifier les logs de déploiement et les éventuelles erreurs fatales."
